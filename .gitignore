@@ -1,0 +1,10 @@
+# personal memory must never enter this repo
+memory/
+# personal machine settings
+settings.json
+settings.local.json
+settings*.json
+# OS/editor noise
+.DS_Store
+__pycache__/
+*.pyc

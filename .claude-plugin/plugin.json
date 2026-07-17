@@ -1,0 +1,6 @@
+{
+  "name": "claude-kit",
+  "version": "0.1.0",
+  "description": "Shareable Claude Code agent kit: orchestration, review, and memory-hygiene skills, critic/implementer agents, and PR-workflow hooks.",
+  "author": { "name": "Tomohito YABU", "email": "tyabu1212@gmail.com" }
+}

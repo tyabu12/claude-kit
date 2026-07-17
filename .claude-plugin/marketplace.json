@@ -1,0 +1,12 @@
+{
+  "name": "claude-kit",
+  "owner": { "name": "Tomohito YABU", "email": "tyabu1212@gmail.com" },
+  "description": "Private marketplace for claude-kit: shareable Claude Code skills, agents, and hooks.",
+  "plugins": [
+    {
+      "name": "claude-kit",
+      "source": "./",
+      "description": "Shareable Claude Code agent kit: orchestration, review, and memory-hygiene skills, critic/implementer agents, and PR-workflow hooks."
+    }
+  ]
+}
