@@ -12,7 +12,6 @@ see the two install sections below (they are not equivalent — read the
 **Skills** (`skills/`):
 - `orchestrate` — feature orchestration: plan → issue → worktree → implement → review → PR.
 - `promote-memories` — triage per-user memory into durable rules and retire shipped trackers.
-- `review-claude-config` — health check for Claude Code configuration files.
 - `risk-review` — multi-perspective, bias-resistant risk review of a diff or design decision.
 - `work-log` — extract and format a work log from conversation history.
 
@@ -38,7 +37,7 @@ the scripts), so the `claude-kit` plugin can ship without the hooks.
 The marketplace splits the kit into two plugins so a project can take the
 skills/agents without the hooks:
 
-- `claude-kit` — the 5 skills and 2 agents. No hooks.
+- `claude-kit` — the 4 skills and 2 agents. No hooks.
 - `claude-kit-hooks` — the PR-workflow hooks (`hooks/hooks.json`). Install
   this **only if** your project does not already register its own force-push
   guard / PR docs-check / PR reflection hooks — otherwise both copies fire on
