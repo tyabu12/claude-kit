@@ -7,7 +7,7 @@
       "name": "claude-kit",
       "source": "./",
       "strict": false,
-      "version": "0.1.0",
+      "version": "0.1.1",
       "author": { "name": "Tomohito YABU", "email": "tyabu1212@gmail.com" },
       "description": "Shareable Claude Code agent kit: orchestration, review, and memory-hygiene skills plus critic/implementer agents. PR-workflow hooks ship separately as claude-kit-hooks.",
       "skills": ["./skills/"],
@@ -17,7 +17,7 @@
       "name": "claude-kit-hooks",
       "source": "./",
       "strict": false,
-      "version": "0.1.0",
+      "version": "0.1.1",
       "author": { "name": "Tomohito YABU", "email": "tyabu1212@gmail.com" },
       "description": "PR-workflow hooks from claude-kit: force-push guard, pre-PR docs freshness check, post-PR reflection. Skip this plugin if your project already registers its own equivalents — they would fire twice.",
       "hooks": "./hooks/hooks.json"
