@@ -25,7 +25,7 @@ report() {
 
 is_allowlisted_author_file() {
   case "$1" in
-    .claude-plugin/marketplace.json) return 0 ;;
+    .claude-plugin/plugin.json|.claude-plugin/marketplace.json|hooks-plugin/.claude-plugin/plugin.json) return 0 ;;
     *) return 1 ;;
   esac
 }
@@ -54,20 +54,16 @@ for f in "${FILES[@]}"; do
   done < <(grep -niE 'tyabu|@gmail' -- "$f" 2>/dev/null || true)
 done
 
-# --- 1b. Verify the allowlisted file contains only the intended author email ---
-# marketplace.json is the sole manifest (strict:false entries; no plugin.json):
-# one owner email + one author email per plugin entry.
+# --- 1b. Verify allowlisted files contain the intended author email exactly once ---
 INTENDED_EMAIL="tyabu1212@gmail.com"
-for f in .claude-plugin/marketplace.json; do
+for f in .claude-plugin/plugin.json .claude-plugin/marketplace.json hooks-plugin/.claude-plugin/plugin.json; do
   if [ ! -f "$f" ]; then
     report "${f}:0: expected allowlisted author file is missing"
     continue
   fi
-  entries="$(grep -c '"source"[[:space:]]*:[[:space:]]*"\./"' -- "$f" || true)"
-  expected=$((entries + 1))
   count="$(grep -o -F "$INTENDED_EMAIL" -- "$f" | wc -l | tr -d ' ')"
-  if [ "$count" != "$expected" ]; then
-    report "${f}:0: expected ${expected} occurrences of ${INTENDED_EMAIL} (owner + ${entries} plugin entries), found ${count}"
+  if [ "$count" != "1" ]; then
+    report "${f}:0: expected exactly one occurrence of ${INTENDED_EMAIL}, found ${count}"
   fi
   # Any other tyabu|@gmail hit that isn't the intended email is a violation.
   while IFS=: read -r line content; do

@@ -1,0 +1,1 @@
+../../hooks/pre-pr-docs-check.sh

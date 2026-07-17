@@ -27,6 +27,10 @@ see the two install sections below (they are not equivalent — read the
 - `post-pr-reflection.sh` — post-PR reflection prompt.
 - `_pr-lib.sh` — shared helpers used by the PR-related hooks above.
 
+The hook *scripts* live in `hooks/`; their plugin *registration* lives in
+`hooks-plugin/` (its own plugin root, with `hooks/hooks.json` plus symlinks to
+the scripts), so the `claude-kit` plugin can ship without the hooks.
+
 **Rules** (`rules/`) — see the co-install section below before assuming these are installed.
 
 ## Install as a plugin
