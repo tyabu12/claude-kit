@@ -2,18 +2,19 @@
 name: work-log
 description: Extract and format a work log from conversation history under ~/.claude/projects/. Argument is the number of days to look back (default 7).
 argument-hint: "[days]"
+model: sonnet
 ---
 
-`~/.claude/projects/` 配下の会話履歴から作業ログを抽出・整形してください。
+Extract and format a work log from the conversation history under `~/.claude/projects/`.
 
-## パラメータ
+## Parameters
 
-- 日数: `$ARGUMENTS`（未指定時は 7）
+- Days: `$ARGUMENTS` (defaults to 7 when unspecified)
 
-## 手順
+## Steps
 
-以下のスクリプトを実行して生データを取得してください。
-DAYS の値は上記パラメータの日数に置き換えてください。
+Run the script below to obtain the raw data.
+Replace the value of DAYS with the number of days from the parameter above.
 
 ```bash
 DAYS=7
@@ -51,15 +52,15 @@ with open(sys.argv[1]) as fh:
 done | sort -r
 ```
 
-## 出力フォーマット
+## Output format
 
-取得した生データを以下の形式に整形してください:
+Format the raw data you obtained as follows:
 
-1. タイトル: `## 作業ログ（直近 N 日間）`
-2. 日付ごとのセクション（新しい順）
-3. 各日付内はプロジェクト別にグルーピング
-4. 各セッションの内容は最初のユーザーメッセージから作業の目的を1行で簡潔に要約
-5. ノイズ（`[Request interrupted]`、`<local-command-caveat>`、`<command-message>` のみ等）はスキップ
-6. 末尾にサマリーテーブル（プロジェクト別セッション数の合計）
+1. Title: `## 作業ログ（直近 N 日間）`
+2. One section per date (newest first)
+3. Group entries by project within each date
+4. For each session, summarize the purpose of the work in a single line, derived from the first user message
+5. Skip noise (e.g. `[Request interrupted]`, `<local-command-caveat>`, or content consisting only of `<command-message>`)
+6. End with a summary table (total session count per project)
 
-出力はすべて日本語で行ってください。
+Produce all output in Japanese.

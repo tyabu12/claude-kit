@@ -31,15 +31,43 @@ see the two install sections below (they are not equivalent — read the
 
 ## Install as a plugin
 
+The marketplace splits the kit into two plugins so a project can take the
+skills/agents without the hooks:
+
+- `claude-kit` — the 5 skills and 2 agents. No hooks.
+- `claude-kit-hooks` — the PR-workflow hooks (`hooks/hooks.json`). Install
+  this **only if** your project does not already register its own force-push
+  guard / PR docs-check / PR reflection hooks — otherwise both copies fire on
+  every matching tool call.
+
 ```
 /plugin marketplace add <owner>/claude-kit
 /plugin install claude-kit@claude-kit
+/plugin install claude-kit-hooks@claude-kit   # optional, see above
 ```
 
 (For a private repository, substitute the git URL — this works with your
 normal git credentials, no extra auth setup needed.)
 
-This delivers **skills, agents, and hooks only**.
+Plugin-delivered skills and agents are namespaced (`/claude-kit:orchestrate`,
+`claude-kit:critic`), so they never collide with a project's own same-named
+assets.
+
+To pin the marketplace for everyone who clones a consuming project, add to
+that project's `.claude/settings.json`:
+
+```json
+{
+  "extraKnownMarketplaces": {
+    "claude-kit": {
+      "source": { "source": "github", "repo": "<owner>/claude-kit" }
+    }
+  },
+  "enabledPlugins": { "claude-kit@claude-kit": true }
+}
+```
+
+This delivers **skills and agents only** (plus hooks if you opted in).
 
 ## Install via symlinks (rules included)
 
