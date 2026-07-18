@@ -49,13 +49,17 @@ the scripts), so the `claude-kit` plugin can ship without the hooks.
 
 **Rules** (`rules/`) — see the co-install section below before assuming these are installed.
 
-**Docs** (`docs/`) — on-demand reference, deliberately outside `rules/` so it costs no
-per-turn context; linked from the skills that need it:
+**Docs** (`docs/`) — on-demand reference, deliberately outside `rules/` so it costs no per-turn
+context. **Neither install mode ships `docs/`** (`install.sh` symlinks `agents/`, `skills/`,
+`hooks/`, `rules/` only; plugins carry even less), so these are read from this repo or on GitHub —
+a skill that cites one inlines the load-bearing fact and treats the path as depth-only.
 - `automation-output-contract.md` — the contract an unattended generator (a skill that files PRs or
   issues on its own) must satisfy so it never bankrupts the reviewer's attention; plus the `gh`
-  read-surface traps for Draft-triage automation.
+  read-surface traps for Draft-triage automation. No kit skill is a generator yet — this is a spec
+  for the next one, and for consuming projects that copy it.
 - `code-review-path-scoped-rules.md` — why path-scoped `.claude/rules/**` are invisible to local
-  `/code-review`, and what `orchestrate` Step 4 does instead.
+  `/code-review`, and what `orchestrate` Step 4 does instead. Cited from `agents/code-reviewer.md`
+  and `skills/write-adr/SKILL.md`.
 
 ## Install as a plugin
 

@@ -25,15 +25,26 @@ there is no obligation to keep the two in sync.
    alone matches ordinary numbered docs (`001-getting-started.md`) and would drop an ADR into an
    unrelated series. If several directories match, ask. **If none exists**, ask the user where to
    write and use the skeleton in Step 2.
-2. **The main sequence, and sentinels.** List the numbers and identify outliers **before** doing
-   arithmetic on them. Repos park entries at sentinel numbers (`ADR-9999`, `ADR-0000`) for
-   deliberately-unnumbered decisions. Treat any number far above the contiguous run (a gap of
-   ≥ 50) as a sentinel: exclude it from both the numbering and the template choice, and say so in
-   the Step 1 report. Naive `max + 1` on a repo holding `ADR-001..027` **and** `ADR-9999` yields
-   `ADR-10000` and corrupts the sequence permanently.
-3. **Template ADR**: the highest-numbered ADR **in the main sequence** (sentinels excluded). Read
-   it in full — section names, ordering, status/date header shape, and numbering width (`ADR-007`
-   vs `0007`) are the spec for the new file. Note its path as `TEMPLATE_PATH`.
+2. **The numbering scheme, then the main sequence.** First decide what the numbers *are*: a flat
+   monotonic counter (`ADR-007`), or date/year-encoded (`ADR-2026-01`, `ADR-20260718`). Everything
+   below assumes flat — **if the scheme is date-encoded, do not apply any gap heuristic**; derive
+   the next id from the scheme itself (today's date) and pick the template by recency.
+
+   For a flat scheme, list the numbers and look for outliers **before** doing arithmetic on them.
+   Repos park entries at sentinel numbers (`ADR-9999`, `ADR-0000`) for deliberately-unnumbered
+   decisions; naive `max + 1` on `ADR-001..027` **plus** `ADR-9999` yields `ADR-10000` and corrupts
+   the sequence permanently. A gap of ≥ 50 above the contiguous run is a **candidate** sentinel, not
+   a verdict — the gap alone cannot tell a parked entry from a reserved subsystem block (100–199) or
+   a renumbered history. So: **when any candidate is found, state your reading and ask the user to
+   confirm before writing.** Corroborate with the file's content — a sentinel usually reads as a
+   deliberately-unnumbered decision, not as the sequence's next entry.
+3. **Template ADR**: the highest-numbered ADR **in the main sequence** (confirmed sentinels
+   excluded). Read it in full — section names, ordering, status/date header shape, and numbering
+   width (`ADR-007` vs `0007`) are the spec for the new file. Note its path as `TEMPLATE_PATH`.
+   **Highest is not always most representative**: if that ADR is visibly atypical (many more
+   sections than its neighbours, one-off headings like "Dead code removed in passing"), say so and
+   take the common structure across the two or three most recent instead — do not propagate a
+   bespoke document's shape into every future ADR.
 4. **Next number**: main-sequence max + 1, in the template's zero-padding and filename shape.
    Then **check for reservations before claiming it**: an ADR index, `CLAUDE.md`, or a
    `CONTRIBUTING` section may record a number as *reserved / not yet written* with no file on disk,
@@ -47,7 +58,10 @@ there is no obligation to keep the two in sync.
    phase-scoped, read only the relevant section.
 
 Report the resolved directory, next number, template, and any sentinel or reserved number skipped,
-before writing.
+before writing. **Immediately before `Write`, confirm the target path does not already exist**
+(re-glob if Step 1 and Step 2 are not contiguous in the same turn — two `/write-adr` runs in
+parallel would otherwise compute the same number). If it exists, stop and report rather than
+writing.
 
 ## Step 2 — Draft
 
@@ -110,9 +124,14 @@ first and apply it"), and "return findings only — no edits, no file dumps".
   alternatives that were genuinely considered, each with a stated reason for rejection. Confirm the
   filename and numbering match the directory's convention.
 - **Reviewer B — Clarity.** Read as a future maintainer with no memory of the discussion: is the
-  rationale self-contained? Are the consequences honest about costs, not only benefits? Flag any
-  acceptance criterion pinned to a brittle threshold (e.g. `≥ N% on model X`) that would be better
-  stated as a mechanism contract — a pinned number silently expires.
+  rationale self-contained? Are the consequences honest about costs, not only benefits? Is anything
+  load-bearing left implicit?
+
+  Do **not** bake house opinions into this prompt (for instance, that a pinned numeric acceptance
+  threshold should be restated as a mechanism contract). That is a real standard in some repos and
+  wrong in others, and asserting it here would make a project-agnostic skill emit false-positive
+  review noise. Such opinions reach the reviewers through `ADR_RULES_PATH`, which is exactly what
+  that pass-through is for.
 
 **Model choice**: Reviewer A is largely mechanical verification — a cheaper tier is appropriate.
 Reviewer B is a judgment read — keep it on the session model or better. Both are far inside the
