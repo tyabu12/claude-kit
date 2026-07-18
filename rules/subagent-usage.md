@@ -37,8 +37,8 @@ Bound the delegated work so the final report fits the budget (defaults — see t
 
 - **Soft budget** (split if over): ~800 changed lines OR ~8 files OR ~5 review axes per
   invocation, whichever is tighter.
-- **Hard split** (always split): >1500 lines, >12 files, or >7 axes — these reliably truncate
-  before the final report.
+- **Hard split** (always split): >1500 lines, >12 files, or >7 axes — at this size the report
+  reliably loses its substance before the run completes.
 
 Between soft and hard, prefer splitting. Budget exhaustion is **silent** — intermediate text
 returns, the report's substance goes missing — so err toward smaller.
@@ -48,7 +48,8 @@ verdict/summary **first** under cap pressure, so it survives exactly when the ru
 Look instead for **detail missing behind a present summary**, which is mechanically checkable as a
 **count mismatch** — the summary claims more issues, axes, or findings than the body actually
 writes out, or names them with no evidence attached. Corroborate with intermediate tool output
-present and no `SCOPE_TOO_LARGE`. A report that is short *and internally consistent* is just short.
+present and no `SCOPE_TOO_LARGE`. That combination is the signal to **split and re-run** — a report
+that is short *and internally consistent* is just short, and needs nothing.
 
 ## Sonnet override (the budget escape valve)
 
