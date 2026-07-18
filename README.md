@@ -20,6 +20,9 @@ see the two install sections below (they are not equivalent — read the
 **Agents** (`agents/`):
 - `critic` — bias-resistant reviewer using pre-mortem axis generation and rubric-based evaluation.
 - `implementer` — executes implementation work from a finalized plan.
+- `code-reviewer` — project-agnostic PASS/FAIL reviewer for `orchestrate`'s Step 4 gate; reads the
+  project's `CLAUDE.md` plus the `.claude/rules/**` whose `paths:` match the changed files. A
+  project's own `.claude/agents/code-reviewer.md` shadows it (project scope wins).
 
 **Hooks** (`hooks/`):
 - `block-force-push.sh` — PreToolUse guard that blocks `git push --force` to protected branches.

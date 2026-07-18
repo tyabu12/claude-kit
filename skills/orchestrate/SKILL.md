@@ -269,14 +269,22 @@ iterations** — if still failing, report and ask whether to proceed to Step 4.
 ## Step 4: Review — Gate G3
 
 Launch a `code-reviewer` subagent with `model: $REVIEWER_MODEL` (lowercase `opus`/`sonnet`, from
-Metadata; defaults Opus). Split large diffs to avoid truncation — soft ~800 lines / ~8 files / ~5
-axes, hard above 1500 / 12 / 7 (this kit's `rules/subagent-usage.md`, or
-`~/.claude/rules/subagent-usage.md` if installed, for depth).
+Metadata; defaults Opus). This kit ships a generic `code-reviewer` (`agents/code-reviewer.md`); a
+project's own `.claude/agents/code-reviewer.md` **shadows it automatically** (project scope wins over
+user/plugin scope — no port declaration needed). When this kit is consumed as a plugin, reference the
+generic as `claude-kit:code-reviewer` (a bare name does not reliably resolve to a plugin agent in a
+Tool call). Whichever reviewer runs MUST emit a `**Verdict**: PASS | FAIL` line — the gate loop below
+parses it; a project override that omits it breaks the gate. Split large diffs to avoid truncation —
+soft ~800 lines / ~8 files / ~5 axes, hard above 1500 / 12 / 7 (this kit's `rules/subagent-usage.md`,
+or `~/.claude/rules/subagent-usage.md` if installed, for depth).
 
 > **Prompt:** "Review all changes on this feature branch. Run `git diff {DEFAULT_BRANCH}...HEAD` for
 > the full diff (all commits since branching). Read every changed file in full. Read the repo's
-> `CLAUDE.md` and `.claude/rules/**` and evaluate against the project's conventions plus general
-> correctness/quality. Output your review in your standard format."
+> `CLAUDE.md`, and only the `.claude/rules/*.md` whose `paths:` frontmatter matches a changed file
+> (plus any rule that has no `paths:`) — the built-in `/code-review` does NOT auto-load path-scoped
+> rules and reading every rule wastes budget on a large rule set, so this explicit selective read is
+> load-bearing. Evaluate against the project's conventions plus general correctness/quality. Output
+> your review in your standard format, including a `**Verdict**: PASS | FAIL` line."
 
 **Review-verify-fix loop:**
 1. **PASS** → Step 5.
