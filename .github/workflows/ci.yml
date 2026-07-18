@@ -2,20 +2,31 @@ name: CI
 
 # Gate for claude-kit: leak scrub (R5), shell lint, manifest + symlink integrity.
 # ubuntu-latest ships bash, jq, and shellcheck preinstalled — no setup steps needed.
+#
+# Security posture: read-only GITHUB_TOKEN, third-party actions pinned to a full
+# commit SHA (tags are mutable), and checkout does not persist credentials since
+# no step pushes back to the repo.
 
 on:
   push:
     branches: [main]
   pull_request:
 
+# Least privilege: this workflow only reads the repo. Set at the top level so it
+# is the ceiling for every job.
 permissions:
   contents: read
 
 jobs:
   checks:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v5
+      # Pinned to the v7.0.0 commit SHA — a moved tag can't swap the action out.
+      # Bump the SHA and the trailing comment together when upgrading.
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
 
       # R5: the committed leak-check must pass before anything reaches main.
       - name: Scrub check (personal-data leak gate)
