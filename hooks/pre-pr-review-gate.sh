@@ -70,7 +70,7 @@ jq -n '{
   hookSpecificOutput: {
     hookEventName: "PreToolUse",
     permissionDecision: "deny",
-    permissionDecisionReason: "Pre-PR review gate: no automated review has run on this branch yet. Before making this PR reviewable, run ONE review skill, chosen by the nature of the branch diff: /code-review for implementation-heavy diffs (hunting correctness bugs in code); /risk-review for design/architecture/ops/docs-heavy or wide-blast-radius changes (migrations, auth, payment, deploy/runbook docs). If the diff clearly spans both natures, prefer /risk-review. Address any findings that matter, then retry this exact gh pr command — the gate fires only once per branch. Exception: if the user explicitly asked to skip the review, just retry now."
+    permissionDecisionReason: "Pre-PR review gate: this is the first ready-making attempt on this branch, which is held once. This hook cannot see whether a review ran — it stops the first attempt and trusts you for the rest, so the retry succeeding is not evidence that anything was reviewed. If no automated review has covered this diff yet, run ONE review skill now, chosen by the nature of the branch diff: /code-review for implementation-heavy diffs (hunting correctness bugs in code); /risk-review for design/architecture/ops/docs-heavy or wide-blast-radius changes (migrations, auth, payment, deploy/runbook docs). If the diff clearly spans both natures, prefer /risk-review. Address any findings that matter, then retry this exact gh pr command — it will go through. If a review already ran, or the user asked to skip it, just retry now."
   }
 }'
 

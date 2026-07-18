@@ -1,6 +1,6 @@
 {
   "name": "claude-kit-hooks",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "PR-workflow and safety hooks from claude-kit: force-push guard, secret-read speed bump, pre-PR review gate, pre-PR docs freshness check, post-PR reflection. Skip this plugin if your project already registers its own equivalents — they would fire twice.",
   "author": {
     "name": "Tomohito YABU",
