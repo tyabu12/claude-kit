@@ -1,6 +1,6 @@
 ---
 name: write-adr
-description: Draft an Architecture Decision Record into the repo's existing ADR directory, matching that repo's own ADR format, then verify it with a two-reviewer loop. Use when the user asks to write an ADR, record a decision, or document an architecture trade-off.
+description: Draft a new Architecture Decision Record into the repo's ADR directory (new files only — not for amending an existing ADR). Use when asked to write an ADR, record an architecture decision, or document a design trade-off.
 allowed-tools: Read, Grep, Glob, Write, Edit, Agent
 argument-hint: "<title>"
 ---
@@ -12,6 +12,10 @@ Draft an Architecture Decision Record for: `$ARGUMENTS`
 Project-agnostic: the repo's **existing ADRs are the format spec**. This skill discovers them
 rather than imposing a house style, so a repo that says `## Trade-offs` where another says
 `## Consequences` keeps its own convention with no configuration.
+
+**Scope: new ADRs only.** Amending an existing ADR is ordinary editing — the numbering, template
+discovery, and review loop here all assume a file that does not exist yet. If the user wants a
+change to an already-written ADR, edit it directly instead of invoking this.
 
 A project with its own `write-adr` skill shadows this one (project scope wins) — expected, and
 there is no obligation to keep the two in sync.

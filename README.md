@@ -16,7 +16,7 @@ see the two install sections below (they are not equivalent — read the
 - `risk-review` — multi-perspective, bias-resistant risk review of a diff or design decision.
 - `skill-retro` — monthly evidence-driven retro of this kit's skills; proposes fixes as a draft PR.
 - `work-log` — extract and format a work log from conversation history.
-- `write-adr` — draft an ADR into the repo's existing ADR directory, matching that repo's own format, then verify it with a two-reviewer loop.
+- `write-adr` — draft a new ADR into the repo's ADR directory, matching that repo's own format, then verify it with a two-reviewer loop.
 
 **Agents** (`agents/`):
 - `critic` — bias-resistant reviewer using pre-mortem axis generation and rubric-based evaluation.
