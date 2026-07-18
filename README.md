@@ -30,6 +30,15 @@ The hook *scripts* live in `hooks/`; their plugin *registration* lives in
 `hooks-plugin/` (its own plugin root, with `hooks/hooks.json` plus symlinks to
 the scripts), so the `claude-kit` plugin can ship without the hooks.
 
+> **Maintainer note — don't collapse this into one plugin root.** Two Claude
+> Code plugin-loading behaviours force the split: (1) a marketplace entry's
+> explicit component list does *not* suppress default component
+> auto-discovery, so a single root's `hooks/hooks.json` is always picked up and
+> the hooks can't be dropped; and (2) a `strict: false` entry conflicts with
+> the mere *presence* of a `plugin.json`, even one that declares no components.
+> Separate plugin roots are the only clean way to ship skills/agents without
+> the hooks.
+
 **Rules** (`rules/`) — see the co-install section below before assuming these are installed.
 
 ## Install as a plugin
