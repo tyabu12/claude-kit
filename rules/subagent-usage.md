@@ -4,9 +4,16 @@ Part of claude-kit. Claude Code-specific mechanics — the generic "delegate / s
 spirit may live in a user's global `~/.claude/CLAUDE.md`; this file stands alone and is the depth
 behind any one-line cap mention there.
 
-> The **volatile facts** here — the cap table (32K/64K/8192), the split thresholds (800/8/5 soft,
-> 1500/12/7 hard), and the `#24055` status — are canonical in this kit. Any consumer project that
-> mirrors them must reconcile **from** this file when they change (one-way: kit → consumer).
+> **Everything numeric here is kit-canonical**, and a consumer mirror reconciles **from** this file,
+> never the reverse. The cap table (32K/64K/8192) and the `#24055` status are Claude Code's limits.
+> The split thresholds below are **derived from them** — pinned to the smallest practical budget,
+> assuming prose-dense report output — which makes them recomputable, not tunable.
+>
+> The one genuinely local input is **report density per changed line**: 800 lines of generated
+> fixtures produce a far shorter report than 800 lines of dense source. That licenses bounding a
+> call **tighter**, never looser, and it belongs at the call site — the numbers inlined in
+> `agents/`/`skills/` are the floor, so a caller who wants less scope splits smaller rather than
+> editing them.
 
 ## The cap
 
@@ -26,7 +33,7 @@ Tracked upstream: [anthropics/claude-code#24055](https://github.com/anthropics/c
 
 ## Caller-side scope discipline
 
-Bound the delegated work so the final report fits the budget:
+Bound the delegated work so the final report fits the budget (defaults — see the header):
 
 - **Soft budget** (split if over): ~800 changed lines OR ~8 files OR ~5 review axes per
   invocation, whichever is tighter.
@@ -35,6 +42,11 @@ Bound the delegated work so the final report fits the budget:
 
 Between soft and hard, prefer splitting. Budget exhaustion is **silent** — intermediate text
 returns, the final report just goes missing — so err toward smaller.
+
+**What exhaustion looks like**, since "silent" makes it easy to mistake for a terse run: the report
+is missing its mandated terminal section (`critic`'s Summary Table / Top Actions,
+`code-reviewer`'s verdict) *while* intermediate tool output is present and no `SCOPE_TOO_LARGE`
+fired. That combination — not a short answer — is the signal to split and re-run.
 
 ## Sonnet override (the budget escape valve)
 
