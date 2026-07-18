@@ -2,5 +2,6 @@
   "name": "claude-kit-hooks",
   "version": "0.1.2",
   "description": "PR-workflow hooks from claude-kit: force-push guard, pre-PR docs freshness check, post-PR reflection. Skip this plugin if your project already registers its own equivalents — they would fire twice.",
-  "author": { "name": "Tomohito YABU", "email": "tyabu1212@gmail.com" }
+  "author": { "name": "Tomohito YABU", "email": "tyabu1212@gmail.com" },
+  "license": "MIT"
 }

@@ -23,9 +23,13 @@ report() {
   VIOLATIONS=$((VIOLATIONS + 1))
 }
 
-is_allowlisted_author_file() {
+# Files where the author's name/email is an INTENTIONAL public attribution
+# (plugin manifests' author fields, the LICENSE copyright line) rather than a
+# leak. These are exempt from the author name/email check only — pastura,
+# absolute paths, and secrets are still scanned in every file.
+is_author_identity_file() {
   case "$1" in
-    .claude-plugin/plugin.json|.claude-plugin/marketplace.json|hooks-plugin/.claude-plugin/plugin.json) return 0 ;;
+    .claude-plugin/plugin.json|.claude-plugin/marketplace.json|hooks-plugin/.claude-plugin/plugin.json|LICENSE) return 0 ;;
     *) return 1 ;;
   esac
 }
@@ -34,21 +38,21 @@ is_allowlisted_author_file() {
 for f in "${FILES[@]}"; do
   [ -f "$f" ] || continue
 
-  if is_allowlisted_author_file "$f"; then
-    continue
-  fi
-
-  # pastura (case-insensitive)
+  # pastura (case-insensitive) — no file is exempt
   while IFS=: read -r line content; do
     report "${f}:${line}: ${content}"
   done < <(grep -niE 'pastura' -- "$f" 2>/dev/null || true)
 
-  # absolute personal paths
+  # absolute personal paths — no file is exempt
   while IFS=: read -r line content; do
     report "${f}:${line}: ${content}"
   done < <(grep -niE '/Users/' -- "$f" 2>/dev/null || true)
 
-  # author name-fragment / email leaking outside the allowlisted files
+  # author name-fragment / email: intentional in author-identity files, a
+  # leak anywhere else.
+  if is_author_identity_file "$f"; then
+    continue
+  fi
   while IFS=: read -r line content; do
     report "${f}:${line}: ${content}"
   done < <(grep -niE 'tyabu|@gmail' -- "$f" 2>/dev/null || true)

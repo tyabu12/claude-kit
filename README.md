@@ -112,5 +112,10 @@ run it before pushing:
 ./scripts/scrub-check.sh
 ```
 
-Wire it as a pre-push hook (or a CI job) once this repo is made public or
-shared beyond the author's own machine.
+It runs automatically in CI (`.github/workflows/ci.yml`) on every push to
+`main` and every pull request, alongside shellcheck and manifest/symlink
+integrity checks. You can also wire it as a local pre-push hook.
+
+## License
+
+[MIT](LICENSE) © Tomohito YABU
