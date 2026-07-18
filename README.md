@@ -127,4 +127,4 @@ integrity checks. You can also wire it as a local pre-push hook.
 
 ## License
 
-[MIT](LICENSE) © Tomohito YABU
+[MIT](LICENSE)
