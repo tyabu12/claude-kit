@@ -18,22 +18,43 @@ there is no obligation to keep the two in sync.
 
 ## Step 1 — Discover
 
-1. **ADR directory**: glob for a directory containing `ADR-*.md` / `adr-*.md` / `[0-9][0-9][0-9]*.md`
-   — try `docs/decisions/`, `docs/adr/`, `doc/adr/`, `docs/architecture/decisions/`. If several
-   match, ask. **If none exists**, ask the user where to write and use the skeleton in Step 2.
-2. **Template ADR**: the **highest-numbered existing ADR** in that directory. Read it in full — its
-   section names, ordering, status/date header shape, and numbering width (`ADR-007` vs `0007`) are
-   the spec for the new file. Note its path as `TEMPLATE_PATH`.
-3. **Next number**: highest existing number + 1, in the template's zero-padding and filename shape.
-4. **Project ADR rule file** (optional): look for `.claude/rules/adr*.md` or a `CONTRIBUTING`
+1. **ADR directory**: glob for a directory containing `ADR-*.md` / `adr-*.md` — try
+   `docs/decisions/`, `docs/adr/`, `doc/adr/`, `docs/architecture/decisions/`. A bare
+   `NNN-*.md` naming also counts, but only if the directory *also* looks like a decision log (an
+   `INDEX.md` of decisions, or files whose headings read as decisions) — a numeric-prefix glob
+   alone matches ordinary numbered docs (`001-getting-started.md`) and would drop an ADR into an
+   unrelated series. If several directories match, ask. **If none exists**, ask the user where to
+   write and use the skeleton in Step 2.
+2. **The main sequence, and sentinels.** List the numbers and identify outliers **before** doing
+   arithmetic on them. Repos park entries at sentinel numbers (`ADR-9999`, `ADR-0000`) for
+   deliberately-unnumbered decisions. Treat any number far above the contiguous run (a gap of
+   ≥ 50) as a sentinel: exclude it from both the numbering and the template choice, and say so in
+   the Step 1 report. Naive `max + 1` on a repo holding `ADR-001..027` **and** `ADR-9999` yields
+   `ADR-10000` and corrupts the sequence permanently.
+3. **Template ADR**: the highest-numbered ADR **in the main sequence** (sentinels excluded). Read
+   it in full — section names, ordering, status/date header shape, and numbering width (`ADR-007`
+   vs `0007`) are the spec for the new file. Note its path as `TEMPLATE_PATH`.
+4. **Next number**: main-sequence max + 1, in the template's zero-padding and filename shape.
+   Then **check for reservations before claiming it**: an ADR index, `CLAUDE.md`, or a
+   `CONTRIBUTING` section may record a number as *reserved / not yet written* with no file on disk,
+   which a file listing cannot see. Grep the repo for the candidate number and for
+   `reserved|not yet written` near ADR references; if the number is spoken for, take the next free
+   one and report the skip.
+5. **Project ADR rule file** (optional): look for `.claude/rules/adr*.md` or a `CONTRIBUTING`
    section on ADRs. If found, read it and note its path as `ADR_RULES_PATH` — it takes precedence
    over anything inferred from the template.
-5. **Context**: read `CLAUDE.md` if present. If the repo has a roadmap/phase doc and the decision is
+6. **Context**: read `CLAUDE.md` if present. If the repo has a roadmap/phase doc and the decision is
    phase-scoped, read only the relevant section.
 
-Report the resolved directory, next number, and template before writing.
+Report the resolved directory, next number, template, and any sentinel or reserved number skipped,
+before writing.
 
 ## Step 2 — Draft
+
+**Apply `ADR_RULES_PATH` here, at draft time — not only at review time.** Its standards (typically:
+verify each fact-claim you cite as you write it; prefer a mechanism contract over a pinned
+threshold) are cheap to honour while drafting and expensive to retrofit once Step 3 finds them
+violated.
 
 Write the new ADR following `TEMPLATE_PATH`'s structure. Keep it concise and LLM-friendly: explicit
 sections, rationale stated rather than implied.

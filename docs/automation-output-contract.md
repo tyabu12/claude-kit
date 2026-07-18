@@ -8,8 +8,8 @@ A **generator** is any skill that runs unattended (scheduled or one-shot) and pr
 human must review — a docs-fix PR, an issue, a digest. The scarce resource it spends is not compute
 but **the reviewer's attention**. This contract is what keeps a generator from bankrupting it.
 
-Origin: extracted from a working 4-generator family in a consumer project. Ported here as
-principles; each project keeps its own mechanics.
+Origin: extracted from a working generator family in a consumer project. Ported here as principles;
+each project keeps its own mechanics.
 
 ## The contract
 
