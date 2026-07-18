@@ -114,7 +114,10 @@ Two shapes, neither expressible as a `Verify by` lookup:
 - **Why-comment on a mechanism** → delete the mechanism and run the tests. Green means the claim
   is false, or the tests never covered it.
 - **A detector / guard / gate** → construct the thing it claims to catch and confirm it fires. A
-  guard's success case proves nothing; only a negative control does.
+  guard's success case proves nothing; only a negative control does. Scope it to the claim it
+  defends: a check narrower than that claim (a files-only loop behind a files-and-directories
+  completeness claim), or one that silently skips its exemptions instead of declaring them,
+  passes by construction.
 
 When a check is too expensive to run, say the cause was not isolated. A reader can act on an
 acknowledged gap; a wrong cause they can only inherit.
