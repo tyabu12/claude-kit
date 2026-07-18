@@ -130,9 +130,12 @@ unique answer:
   encodes one repo's generator roster). Keep these canonical in the project; they are not mirrored
   here.
 
-Note the test bites: any *recommended threshold* in the kit that a reasonable maintainer would tune
-(scope-split budgets, WIP defaults) is a **default**, not a kit-canonical fact, and should say so
-where it is defined.
+Apply the test to the value's **dependency**, not to anyone's wish to change it — "a reasonable
+maintainer would tune this" is not the test, or every inconvenient limit becomes a default. A
+threshold is project-owned only when the value it rests on differs per repo or maintainer (a WIP
+ceiling rests on one human's review attention), and it must name that dependency. A threshold
+derived from a platform limit stays kit-canonical and is **recomputed, never retuned**, however much
+a looser one would be convenient.
 
 A consuming project should keep a **self-contained copy** of this doc under its own
 `.claude/rules/` or `docs/` rather than pointing at the kit path — a kit path does not exist for
