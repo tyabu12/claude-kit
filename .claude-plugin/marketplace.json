@@ -1,17 +1,20 @@
 {
   "name": "claude-kit",
-  "owner": { "name": "Tomohito YABU", "email": "tyabu1212@gmail.com" },
+  "owner": {
+    "name": "Tomohito YABU",
+    "email": "tyabu1212@gmail.com"
+  },
   "description": "Marketplace for claude-kit: shareable Claude Code skills, agents, and hooks.",
   "plugins": [
     {
       "name": "claude-kit",
       "source": "./",
-      "description": "Shareable Claude Code agent kit: orchestration, review, and memory-hygiene skills plus critic/implementer agents. PR-workflow hooks ship separately as claude-kit-hooks."
+      "description": "Shareable Claude Code agent kit: orchestration, batch-dispatch, review, and memory/skill-hygiene skills plus critic/implementer agents. PR-workflow hooks ship separately as claude-kit-hooks."
     },
     {
       "name": "claude-kit-hooks",
       "source": "./hooks-plugin",
-      "description": "PR-workflow hooks from claude-kit: force-push guard, pre-PR docs freshness check, post-PR reflection. Skip this plugin if your project already registers its own equivalents — they would fire twice."
+      "description": "PR-workflow and safety hooks from claude-kit: force-push guard, secret-read speed bump, pre-PR review gate, pre-PR docs freshness check, post-PR reflection. Skip this plugin if your project already registers its own equivalents — they would fire twice."
     }
   ]
 }

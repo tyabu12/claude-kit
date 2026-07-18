@@ -10,9 +10,11 @@ see the two install sections below (they are not equivalent — read the
 ## Contents
 
 **Skills** (`skills/`):
+- `dispatch` — batch fan-out: run independent small-to-medium tasks in parallel worktrees, each ending in a reviewed draft PR.
 - `orchestrate` — feature orchestration: plan → issue → worktree → implement → review → PR.
 - `promote-memories` — triage per-user memory into durable rules and retire shipped trackers.
 - `risk-review` — multi-perspective, bias-resistant risk review of a diff or design decision.
+- `skill-retro` — monthly evidence-driven retro of this kit's skills; proposes fixes as a draft PR.
 - `work-log` — extract and format a work log from conversation history.
 
 **Agents** (`agents/`):
@@ -21,8 +23,10 @@ see the two install sections below (they are not equivalent — read the
 
 **Hooks** (`hooks/`):
 - `block-force-push.sh` — PreToolUse guard that blocks `git push --force` to protected branches.
+- `guard-secret-reads.sh` — turns Bash commands referencing secret paths (`.ssh/`, `.aws/`, `.env`, …) into a confirmation ask; closes the gap that `Read()` permission denies don't cover Bash.
 - `gated-runner.sh` — runs a wrapped hook only when the Bash command matches a given prefix (e.g. `gh pr `).
 - `pre-pr-docs-check.sh` — pre-PR docs freshness check.
+- `pre-pr-review-gate.sh` — review gate with teeth: denies the first ready-making `gh pr` command per branch until a review skill (/code-review or /risk-review) has run.
 - `post-pr-reflection.sh` — post-PR reflection prompt.
 - `_pr-lib.sh` — shared helpers used by the PR-related hooks above.
 
@@ -46,11 +50,11 @@ the scripts), so the `claude-kit` plugin can ship without the hooks.
 The marketplace splits the kit into two plugins so a project can take the
 skills/agents without the hooks:
 
-- `claude-kit` — the 4 skills and 2 agents. No hooks.
+- `claude-kit` — the 6 skills and 2 agents. No hooks.
 - `claude-kit-hooks` — the PR-workflow hooks (`hooks/hooks.json`). Install
   this **only if** your project does not already register its own force-push
-  guard / PR docs-check / PR reflection hooks — otherwise both copies fire on
-  every matching tool call.
+  guard / PR review gate / PR docs-check / PR reflection hooks — otherwise
+  both copies fire on every matching tool call.
 
 ```
 /plugin marketplace add <owner>/claude-kit

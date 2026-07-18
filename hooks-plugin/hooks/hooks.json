@@ -10,7 +10,15 @@
           },
           {
             "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/gated-runner.sh\" 'gh pr ' -- bash \"${CLAUDE_PLUGIN_ROOT}/hooks/pre-pr-review-gate.sh\""
+          },
+          {
+            "type": "command",
             "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/block-force-push.sh\""
+          },
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/guard-secret-reads.sh\""
           }
         ]
       }
