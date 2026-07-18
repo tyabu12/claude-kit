@@ -4,9 +4,15 @@ Part of claude-kit. Claude Code-specific mechanics — the generic "delegate / s
 spirit may live in a user's global `~/.claude/CLAUDE.md`; this file stands alone and is the depth
 behind any one-line cap mention there.
 
-> The **volatile facts** here — the cap table (32K/64K/8192), the split thresholds (800/8/5 soft,
-> 1500/12/7 hard), and the `#24055` status — are canonical in this kit. Any consumer project that
-> mirrors them must reconcile **from** this file when they change (one-way: kit → consumer).
+> **Kit-canonical** — the cap table (32K/64K/8192) and the `#24055` status: Claude Code's limits,
+> identical for everyone who installs this kit. A consumer mirror reconciles **from** this file when
+> they change, never the reverse.
+>
+> **Tunable defaults** — the split thresholds (800/8/5 soft, 1500/12/7 hard). Starting points, not
+> facts; a project may retune them. Only from **observed truncation**, though — never to avoid a
+> split. Exhaustion is silent, so "the last few runs seemed fine" is not evidence that a looser
+> bound holds. Retuning means updating every place that inlines them (`agents/`, `skills/`) — a
+> partial retune leaves the strictest copy silently governing.
 
 ## The cap
 
@@ -26,7 +32,7 @@ Tracked upstream: [anthropics/claude-code#24055](https://github.com/anthropics/c
 
 ## Caller-side scope discipline
 
-Bound the delegated work so the final report fits the budget:
+Bound the delegated work so the final report fits the budget (defaults — see the header):
 
 - **Soft budget** (split if over): ~800 changed lines OR ~8 files OR ~5 review axes per
   invocation, whichever is tighter.
