@@ -117,8 +117,10 @@ The `critic` agent is already restricted to read-only tools — do not grant it 
 ## 5. Synthesize
 
 Merge all `critic` outputs into one report:
-- **Integrity check first**: if any critic output is missing its Summary Table or Top Actions
-  section, treat it as truncated — re-run that cluster on a larger-output-cap model rather than
+- **Integrity check first**: treat a critic output as truncated when its Summary Table lists axes
+  the body never evaluates — `critic` emits that table **first** under cap pressure, so a *present*
+  table with missing per-axis bodies is the shape truncation actually takes (a wholly absent table
+  means the run died even earlier). Re-run that cluster on a larger-output-cap model rather than
   merging a partial report. A larger output cap is NOT the same as a more capable model (a mid tier
   may have a bigger cap than the top tier), so for judgment-heavy axes prefer splitting over
   downgrading capability. **If the cluster was already on the largest-cap model available, do not

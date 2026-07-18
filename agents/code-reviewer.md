@@ -30,8 +30,8 @@ caps: Opus 4.x 32,000 / Sonnet 4.x·5 64,000 / Haiku 4.x 8,192 (Fable 5 undocume
 
 - **Soft budget** (recommend split): ~800 changed lines OR ~8 changed files OR ~5 review axes per
   invocation, whichever is tighter.
-- **Hard split** (always split): >1500 lines, >12 files, or >7 axes — these reliably truncate
-  before the final Verdict block.
+- **Hard split** (always split): >1500 lines, >12 files, or >7 axes — at this size the report
+  reliably loses its per-issue detail (the Verdict survives, since you emit it first).
 
 **Bail-out check (mandatory, before any other tool_use):** run `git diff <base>...HEAD --stat` (or
 `git diff --stat` for the working tree) as the very first tool call. If the diff exceeds the soft
@@ -42,7 +42,7 @@ SCOPE_TOO_LARGE: <X lines / Y files> exceeds soft budget. Please split into <sug
 ```
 
 Do NOT begin the Read/Grep cycle after that point — every later tool_use consumes the budget the
-final Verdict block needs.
+issue write-ups need, leaving a Verdict with nothing substantiating it.
 
 ## Output Discipline
 

@@ -41,12 +41,14 @@ Bound the delegated work so the final report fits the budget (defaults — see t
   before the final report.
 
 Between soft and hard, prefer splitting. Budget exhaustion is **silent** — intermediate text
-returns, the final report just goes missing — so err toward smaller.
+returns, the report's substance goes missing — so err toward smaller.
 
-**What exhaustion looks like**, since "silent" makes it easy to mistake for a terse run: the report
-is missing its mandated terminal section (`critic`'s Summary Table / Top Actions,
-`code-reviewer`'s verdict) *while* intermediate tool output is present and no `SCOPE_TOO_LARGE`
-fired. That combination — not a short answer — is the signal to split and re-run.
+**What exhaustion looks like.** *Not* a missing summary: review agents are built to emit their
+verdict/summary **first** under cap pressure, so it survives exactly when the run is truncated.
+Look instead for **detail missing behind a present summary**, which is mechanically checkable as a
+**count mismatch** — the summary claims more issues, axes, or findings than the body actually
+writes out, or names them with no evidence attached. Corroborate with intermediate tool output
+present and no `SCOPE_TOO_LARGE`. A report that is short *and internally consistent* is just short.
 
 ## Sonnet override (the budget escape valve)
 
