@@ -1,0 +1,57 @@
+name: CI
+
+# Gate for claude-kit: leak scrub (R5), shell lint, manifest + symlink integrity.
+# ubuntu-latest ships bash, jq, and shellcheck preinstalled — no setup steps needed.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # R5: the committed leak-check must pass before anything reaches main.
+      - name: Scrub check (personal-data leak gate)
+        run: ./scripts/scrub-check.sh
+
+      # Lint every shell script. Hooks are security-sensitive (force-push guard),
+      # so warnings+errors fail; info/style findings stay advisory.
+      - name: Shellcheck
+        run: |
+          shellcheck --severity=warning \
+            install.sh \
+            scripts/*.sh \
+            hooks/*.sh
+
+      # Manifests are load-bearing (plugin discovery). A malformed one breaks
+      # install silently, so validate every tracked JSON parses.
+      - name: Validate JSON manifests
+        run: |
+          fail=0
+          while IFS= read -r f; do
+            if ! jq empty "$f"; then
+              echo "::error file=$f::invalid JSON"
+              fail=1
+            fi
+          done < <(git ls-files '*.json')
+          exit "$fail"
+
+      # hooks-plugin/hooks/*.sh are relative symlinks into ../../hooks/. A dangling
+      # one silently disables the corresponding hook, so assert they all resolve.
+      - name: Verify hook symlinks resolve
+        run: |
+          fail=0
+          for l in hooks-plugin/hooks/*.sh; do
+            if [ -L "$l" ] && [ ! -e "$l" ]; then
+              echo "::error file=$l::dangling symlink"
+              fail=1
+            fi
+          done
+          exit "$fail"
