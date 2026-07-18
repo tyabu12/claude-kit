@@ -286,10 +286,6 @@ or `~/.claude/rules/subagent-usage.md` if installed, for depth).
 > load-bearing. Evaluate against the project's conventions plus general correctness/quality. Output
 > your review in your standard format, including a `**Verdict**: PASS | FAIL` line."
 
-> **Maintainer note:** the selective rule-read above is load-bearing and `/code-review` cannot
-> replace it — if you edit this prompt, re-run the negative control in `docs/code-review-path-scoped-rules.md`
-> (verified 2026-07-18; Claude Code version-dependent).
-
 **Review-verify-fix loop:**
 1. **PASS** → Step 5.
 2. **FAIL:** (a) launch 1 read-only verify agent to filter false positives (e.g. force-unwrap

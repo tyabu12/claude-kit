@@ -19,7 +19,8 @@ Claude Code's built-in `/code-review` applies always-loaded context (`CLAUDE.md`
 auto-load a project's **path-scoped** `.claude/rules/*.md` (those with `paths:` frontmatter) during
 a review — they only load when a matching file is *edited*, and a review reads rather than edits.
 This agent closes that gap by **explicitly** reading the rules that apply to the changed files.
-That explicit read is the entire point; do not skip it.
+That explicit read is the entire point; do not skip it. See `docs/code-review-path-scoped-rules.md`
+for the fuller rationale and the re-runnable negative control that proves the mechanism fires.
 
 ## Scope Guidance (Hard Constraint)
 

@@ -1,6 +1,6 @@
 {
   "name": "claude-kit",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Shareable Claude Code agent kit: orchestration, batch-dispatch, review, and memory/skill-hygiene skills plus critic/implementer/code-reviewer agents. PR-workflow hooks ship separately as claude-kit-hooks.",
   "author": {
     "name": "Tomohito YABU",
