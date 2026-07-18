@@ -12,7 +12,8 @@
 #
 #   - Compare the branch against its PR base (see base-branch
 #     detection below). If any documentation-ish path changed
-#     (CLAUDE.md, AGENTS.md, .claude/rules/, README, docs/) → silent
+#     (CLAUDE.md, AGENTS.md, rules/*.md at any depth, README, docs/)
+#     → silent
 #     no-op (exit 0, no stdout): assume docs were already considered.
 #   - Otherwise → emit a `hookSpecificOutput.additionalContext` JSON
 #     nudging the operator to check for doc drift before the PR opens.
