@@ -30,7 +30,7 @@ see the two install sections below (they are not equivalent — read the
 - `guard-secret-reads.sh` — turns Bash commands referencing secret paths (`.ssh/`, `.aws/`, `.env`, …) into a confirmation ask; closes the gap that `Read()` permission denies don't cover Bash.
 - `gated-runner.sh` — runs a wrapped hook only when the Bash command matches a given prefix (e.g. `gh pr `).
 - `pre-pr-docs-check.sh` — pre-PR docs freshness check.
-- `pre-pr-review-gate.sh` — review gate with teeth: denies the first ready-making `gh pr` command per branch until a review skill (/code-review or /risk-review) has run.
+- `pre-pr-review-gate.sh` — review gate with teeth: denies the first ready-making `gh pr` command per branch, telling the agent to run a review skill (/code-review or /risk-review) before retrying. It cannot verify that one ran — it buys the interruption and trusts the agent for the rest.
 - `post-pr-reflection.sh` — post-PR reflection prompt.
 - `_pr-lib.sh` — shared helpers used by the PR-related hooks above.
 
