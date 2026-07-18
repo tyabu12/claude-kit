@@ -16,6 +16,7 @@ see the two install sections below (they are not equivalent — read the
 - `risk-review` — multi-perspective, bias-resistant risk review of a diff or design decision.
 - `skill-retro` — monthly evidence-driven retro of this kit's skills; proposes fixes as a draft PR.
 - `work-log` — extract and format a work log from conversation history.
+- `write-adr` — draft an ADR into the repo's existing ADR directory, matching that repo's own format, then verify it with a two-reviewer loop.
 
 **Agents** (`agents/`):
 - `critic` — bias-resistant reviewer using pre-mortem axis generation and rubric-based evaluation.
@@ -48,12 +49,20 @@ the scripts), so the `claude-kit` plugin can ship without the hooks.
 
 **Rules** (`rules/`) — see the co-install section below before assuming these are installed.
 
+**Docs** (`docs/`) — on-demand reference, deliberately outside `rules/` so it costs no
+per-turn context; linked from the skills that need it:
+- `automation-output-contract.md` — the contract an unattended generator (a skill that files PRs or
+  issues on its own) must satisfy so it never bankrupts the reviewer's attention; plus the `gh`
+  read-surface traps for Draft-triage automation.
+- `code-review-path-scoped-rules.md` — why path-scoped `.claude/rules/**` are invisible to local
+  `/code-review`, and what `orchestrate` Step 4 does instead.
+
 ## Install as a plugin
 
 The marketplace splits the kit into two plugins so a project can take the
 skills/agents without the hooks:
 
-- `claude-kit` — the 6 skills and 2 agents. No hooks.
+- `claude-kit` — the 7 skills and 3 agents. No hooks.
 - `claude-kit-hooks` — the PR-workflow hooks (`hooks/hooks.json`). Install
   this **only if** your project does not already register its own force-push
   guard / PR review gate / PR docs-check / PR reflection hooks — otherwise
