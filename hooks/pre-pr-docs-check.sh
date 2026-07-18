@@ -91,7 +91,7 @@ CHANGED=$(git diff "$BASE...HEAD" --name-only 2>/dev/null || true)
 [ -n "$CHANGED" ] || exit 0
 
 if ! printf '%s\n' "$CHANGED" \
-  | grep -qE 'CLAUDE\.md|AGENTS\.md|(^|/)rules/[^/]*\.md|(^|/)README|(^|/)docs/'; then
+  | grep -qE 'CLAUDE\.md|AGENTS\.md|(^|/)rules/.*\.md|(^|/)README|(^|/)docs/'; then
   jq -n '{
     hookSpecificOutput: {
       hookEventName: "PreToolUse",
