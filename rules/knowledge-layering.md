@@ -38,7 +38,9 @@ Triggers, by fire-rate reliability:
    one-liners, so it fires far too late to rely on. Or every few months. Size-rank memories; the
    largest are promotion candidates, SHIPPED trackers are retire candidates. Also diff each rule
    here against any consumer-project copies you maintain, as a backstop for a missed mirror update
-   (the volatile facts in `subagent-usage.md` are the ones that matter).
+   — but a divergence is not automatically drift: a rule may mark some values kit-canonical and
+   others locally tunable (`subagent-usage.md` does both), so reconcile against what that file says
+   it owns, not against the diff.
 2. **Rule-aware bundling** — if the current session already touches a rules file, fold a related
    promotion into the same change rather than opening a separate one.
 3. **At save time** (best-effort) — for a new `feedback_*` save, apply the quick test; if it
