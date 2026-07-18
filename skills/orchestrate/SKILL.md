@@ -281,8 +281,8 @@ or `~/.claude/rules/subagent-usage.md` if installed, for depth).
 > **Prompt:** "Review all changes on this feature branch. Run `git diff {DEFAULT_BRANCH}...HEAD` for
 > the full diff (all commits since branching). Read every changed file in full. Read the repo's
 > `CLAUDE.md`, and only the `.claude/rules/*.md` whose `paths:` frontmatter matches a changed file
-> (plus any rule that has no `paths:`) — the built-in `/code-review` does NOT auto-load path-scoped
-> rules and reading every rule wastes budget on a large rule set, so this explicit selective read is
+> (plus any rule that has no `paths:`) — path-scoped rules are NOT auto-loaded during a review, and
+> reading every rule wastes budget on a large rule set, so this explicit selective read is
 > load-bearing. Evaluate against the project's conventions plus general correctness/quality. Output
 > your review in your standard format, including a `**Verdict**: PASS | FAIL` line."
 
