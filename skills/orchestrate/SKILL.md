@@ -210,13 +210,13 @@ plugin, the agent name is namespaced `claude-kit:critic`.)
   5. Verify: `git branch --show-current`.
 
 **Worktree path hygiene** (holds for the rest of the session): the original checkout stays on another
-branch, so any tool that silently resolves to it instead of this worktree acts on the wrong tree with
-no diff warning. (a) Every absolute Edit/Write path must point **inside** the worktree — invalidate any
-path carried over from a *pre-worktree* tool result before reusing it. (b) In subagent prompts (Step 3
-implementer, Step 4 reviewer), embed the **resolved literal** worktree path (`git -C "$WORKTREE" …`,
-Read at `$WORKTREE/…`), never a `$(…)` command the subagent re-runs against its own cwd — a reviewer
-whose `git diff` resolves to the original checkout sees an **empty phantom diff**, a "no changes" review
-quieter than a wrong-file read.
+branch, so a tool that resolves to it instead of this worktree acts on the wrong tree silently. Every
+absolute Edit/Write path must point **inside** the worktree — invalidate any carried over from a
+*pre-worktree* tool result. Non-isolation subagents (Step 3 implementer, Step 4 reviewer) inherit this
+worktree's cwd, so their git normally resolves here — but embed **already-resolved** absolute paths in
+their prompts (capture the root once with `git rev-parse --show-toplevel`), never a `$(…)` the subagent
+re-runs against its own cwd, and never a reused pre-worktree path. A subagent whose git resolved to the
+original checkout instead would see an **empty phantom diff**.
 
 ## Step 3: Implementation
 
@@ -280,8 +280,8 @@ iterations** — if still failing, report and ask whether to proceed to Step 4.
 **Before launching the reviewer,** `git fetch origin {DEFAULT_BRANCH}` and check `git rev-list --count
 HEAD..origin/{DEFAULT_BRANCH}` — a long session can span hours during which `{DEFAULT_BRANCH}` advances.
 If the count is non-zero, offer a rebase before review; treat it as **mandatory** when the diff touches
-large generated / data files (lockfiles, generated code, schema dumps) where a naive 3-way merge
-silently reverts upstream work.
+large generated / data files (lockfiles, generated code, schema dumps), where a rebase or
+non-conflicting auto-merge can drop upstream entries without surfacing a conflict.
 
 Launch a `code-reviewer` subagent with `model: $REVIEWER_MODEL` (lowercase `opus`/`sonnet`, from
 Metadata; defaults Opus). This kit ships a generic `code-reviewer` (`agents/code-reviewer.md`); a
@@ -345,8 +345,7 @@ After creation: print the PR URL; "wait for required checks, then merge manually
 **After merge** (guidance only — do NOT auto-execute): `ExitWorktree` action `"remove"`;
 `git switch <default-branch> && git pull`.
 
-> **Squash / rebase merge caveat:** those merge styles give the merged commit a **new SHA**, so
-> `ExitWorktree(action: "remove")` refuses — it counts the local commits as unmerged by ancestry —
-> even though the work landed. Once the user confirms the merge, re-invoke with `discard_changes: true`,
-> briefly noting why. Merge-commit style keeps the local SHAs reachable and needs no discard — verify
-> the style first if the user used a non-default flow.
+> **Post-merge `remove` may refuse:** squash / rebase merge gives the merged commit a **new SHA**, so
+> the worktree's local commits read as unmerged by ancestry and `ExitWorktree(action: "remove")`
+> refuses — as it also can *before* the post-merge `pull`, when local `{DEFAULT_BRANCH}` doesn't yet
+> contain the merge. Once the user confirms the merge landed, re-invoke with `discard_changes: true`.
