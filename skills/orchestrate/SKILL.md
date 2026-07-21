@@ -209,6 +209,15 @@ plugin, the agent name is namespaced `claude-kit:critic`.)
   4. Rename to conventional format: `git branch -m "$(git branch --show-current)" "{TASK_TYPE}/{SLUG}"`.
   5. Verify: `git branch --show-current`.
 
+**Worktree path hygiene** (holds for the rest of the session): the original checkout stays on another
+branch, so any tool that silently resolves to it instead of this worktree acts on the wrong tree with
+no diff warning. (a) Every absolute Edit/Write path must point **inside** the worktree — invalidate any
+path carried over from a *pre-worktree* tool result before reusing it. (b) In subagent prompts (Step 3
+implementer, Step 4 reviewer), embed the **resolved literal** worktree path (`git -C "$WORKTREE" …`,
+Read at `$WORKTREE/…`), never a `$(…)` command the subagent re-runs against its own cwd — a reviewer
+whose `git diff` resolves to the original checkout sees an **empty phantom diff**, a "no changes" review
+quieter than a wrong-file read.
+
 ## Step 3: Implementation
 
 Follow the plan. If `RESUMING`, start from `NEXT_ITEM`. Per item (`K` = plan item number):
@@ -267,6 +276,12 @@ error output; on return, review the diff and commit. If Opus also fails, report 
 iterations** — if still failing, report and ask whether to proceed to Step 4.
 
 ## Step 4: Review — Gate G3
+
+**Before launching the reviewer,** `git fetch origin {DEFAULT_BRANCH}` and check `git rev-list --count
+HEAD..origin/{DEFAULT_BRANCH}` — a long session can span hours during which `{DEFAULT_BRANCH}` advances.
+If the count is non-zero, offer a rebase before review; treat it as **mandatory** when the diff touches
+large generated / data files (lockfiles, generated code, schema dumps) where a naive 3-way merge
+silently reverts upstream work.
 
 Launch a `code-reviewer` subagent with `model: $REVIEWER_MODEL` (lowercase `opus`/`sonnet`, from
 Metadata; defaults Opus). This kit ships a generic `code-reviewer` (`agents/code-reviewer.md`); a
@@ -329,3 +344,9 @@ After creation: print the PR URL; "wait for required checks, then merge manually
 
 **After merge** (guidance only — do NOT auto-execute): `ExitWorktree` action `"remove"`;
 `git switch <default-branch> && git pull`.
+
+> **Squash / rebase merge caveat:** those merge styles give the merged commit a **new SHA**, so
+> `ExitWorktree(action: "remove")` refuses — it counts the local commits as unmerged by ancestry —
+> even though the work landed. Once the user confirms the merge, re-invoke with `discard_changes: true`,
+> briefly noting why. Merge-commit style keeps the local SHAs reachable and needs no discard — verify
+> the style first if the user used a non-default flow.
