@@ -1,22 +1,38 @@
 # `/code-review` and path-scoped rules — a load-bearing finding
 
-**Verified: 2026-07-18. Volatile — this is Claude Code version-dependent behavior; re-verify on a
-Claude Code upgrade and whenever the orchestrate Step 4 reviewer prompt changes.**
+**Observation verified 2026-07-18; injection mechanism re-measured 2026-07-24 on Claude Code
+2.1.218 (the 2026-07-18 explanation was wrong — see below). Volatile — this is Claude Code
+version-dependent behavior; re-verify on a Claude Code upgrade and whenever the orchestrate Step 4
+reviewer prompt changes.**
 
 ## The finding
 
-Claude Code's built-in **local** `/code-review`:
+Two separate claims live here; a 2026-07-24 re-probe falsified one and left the other standing.
+Keep them apart.
 
-- **reads and applies always-loaded context** — the repo's `CLAUDE.md` (and, by the same tier,
-  `.claude/rules/*.md` files that have **no** `paths:` frontmatter);
-- does **NOT** auto-load **path-scoped** `.claude/rules/*.md` (those with `paths:` frontmatter)
-  during a review. Path-scoped rules load when a matching file is *edited*; a review *reads* rather
-  than edits, so they never fire.
+**Observation (2026-07-18, assumed to still hold).** Claude Code's built-in **local** `/code-review`
+reads and applies always-loaded context — the repo's `CLAUDE.md`, and by the same tier
+`.claude/rules/*.md` with **no** `paths:` frontmatter — but does **NOT** apply **path-scoped** rules
+(those with `paths:`) during a review. Stated precisely: **path-scoped rules are invisible to local
+`/code-review`.** Cloud review (`/code-review ultra`, the managed GitHub App) additionally reads a
+`REVIEW.md`; local `/code-review` does not. (We did not test whether `paths:`-less files load —
+always-loaded by definition, so they should; untested.)
 
-Scope of the claim precisely: **path-scoped rules are invisible to local `/code-review`.** We did
-NOT test whether `paths:`-less rule files load (they are always-loaded by definition, same tier as
-`CLAUDE.md`, so they should — untested). Cloud review (`/code-review ultra`, the managed GitHub App)
-additionally reads a `REVIEW.md`; local `/code-review` does not.
+**Explanation — the original one is false.** This doc used to say path-scoped rules "load when a
+matching file is *edited*; a review reads rather than edits, so they never fire." That mechanism is
+wrong. Measured 2026-07-24 on Claude Code 2.1.218 (three fresh subagent probes + one main-session
+check): a matching path-scoped rule *is* injected — from a **`Read` tool call's path argument** (all
+matches at once; it fires even when the read targets a nonexistent path) — and **not** from
+`Edit`/`Write` (those inject nothing; only `Read` does), nor from `Grep`, `Glob`, or any Bash
+(`git diff`/`show`/`log`/`grep`). So "edit vs read" was the wrong axis: the trigger is the `Read`
+tool specifically, and editing loads a rule only because an edit `Read`s the file first. Caveat: the
+negatives are single-session and could in principle be a per-session injection de-dup artifact rather
+than a genuine non-fire; the `Read` positive is robust (seen across fresh contexts, main and sub).
+
+**What this does NOT explain: why local `/code-review` misses path-scoped rules.** The observation
+stands; its cause is now open. `/code-review` may not drive the `Read` tool over changed files (it
+may read the diff by another path), or it may de-dup. Do not paper over this with the new mechanism —
+re-run the negative control below against the current Claude Code before relying on the observation.
 
 ## Why the orchestrate skill cares
 

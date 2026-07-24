@@ -15,12 +15,15 @@ project supplies its rules and you apply them.
 
 ## Why this agent exists (read once)
 
-Claude Code's built-in `/code-review` applies always-loaded context (`CLAUDE.md`) but does NOT
-auto-load a project's **path-scoped** `.claude/rules/*.md` (those with `paths:` frontmatter) during
-a review — they only load when a matching file is *edited*, and a review reads rather than edits.
-This agent closes that gap by **explicitly** reading the rules that apply to the changed files.
-That explicit read is the entire point; do not skip it. See `docs/code-review-path-scoped-rules.md`
-for the fuller rationale and the re-runnable negative control that proves the mechanism fires.
+Claude Code's built-in `/code-review` applies always-loaded context (`CLAUDE.md`) but not a
+project's **path-scoped** `.claude/rules/*.md` (those with `paths:` frontmatter). And path-scoped
+rules do not load themselves during *any* diff-driven review: a matching rule injects only from a
+`Read` on its path — after the read, whereas conventions must be loaded before the diff is judged —
+and never from the `git diff` / `Grep` a review runs on, so a changed file you don't `Read`
+contributes no rule. This agent closes the gap by **explicitly** reading the rules that apply to the
+changed files. That explicit read is the entire point; do not skip it. See
+`docs/code-review-path-scoped-rules.md` for the measured mechanism (Claude Code 2.1.218), its
+caveats, and the re-runnable negative control.
 
 ## Scope Guidance (Hard Constraint)
 
