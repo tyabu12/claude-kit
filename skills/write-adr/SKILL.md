@@ -115,8 +115,9 @@ Get today's date from `date +%F`, never from memory.
 Launch **two subagents in parallel**, read-only (they must not modify files). Each prompt MUST embed
 the resolved paths. **Why this is not optional:** a subagent inherits none of this session's
 context, and a path-scoped `.claude/rules/*.md` (one with `paths:` frontmatter) does **not**
-auto-load for it — those load on a matching *edit*, and a review only reads. Passing the paths
-explicitly is therefore the entire mechanism by which project ADR standards reach the reviewers;
+auto-load for it — such a rule injects only from a `Read` on its path, which the subagent performs
+only if the prompt hands it that path. Passing the paths explicitly is therefore the entire mechanism by
+which project ADR standards reach the reviewers;
 omit it and the standards vanish with no error. (Depth, if this kit is installed via symlink rather
 than as a plugin: `docs/code-review-path-scoped-rules.md`.)
 

@@ -16,7 +16,7 @@ Always-loaded files — read into every agent session, so every line is paid on 
 - a project's top-level `CLAUDE.md` and its `.claude/rules/*.md` without `paths:`
 - `~/.claude/agents/*.md` and project `.claude/agents/*.md`
 
-Path-scoped files (`paths:` frontmatter) load only on matching edits — the budget is looser there.
+Path-scoped files (`paths:` frontmatter) load only when a matching path is read — the budget is looser there.
 
 ## Principle
 
