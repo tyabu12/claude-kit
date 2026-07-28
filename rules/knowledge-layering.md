@@ -107,9 +107,9 @@ authoritative source:
 
 The table covers claims you *lean on*. A **why-comment you write** is the same kind of claim —
 it asserts runtime or library behaviour as the reason a mechanism exists — but it is authored at
-implementation time and executed by nobody. Reviewers check whether the *code* is correct, not
-whether the *stated reason* is true, so a false one ships and the next reader inherits it as fact.
-Two shapes, neither expressible as a `Verify by` lookup:
+implementation *or review-fix* time and executed by nobody. Reviewers check whether the *code* is
+correct, not whether the *stated reason* is true, so a false one ships and the next reader inherits
+it as fact. Three shapes, none expressible as a `Verify by` lookup:
 
 - **Why-comment on a mechanism** → delete the mechanism and run the tests. Green means the claim
   is false, or the tests never covered it.
@@ -118,6 +118,10 @@ Two shapes, neither expressible as a `Verify by` lookup:
   defends: a check narrower than that claim (a files-only loop behind a files-and-directories
   completeness claim), or one that silently skips its exemptions instead of declaring them,
   passes by construction.
+- **A classification or count built on an earlier claim** → when you fix that claim, grep what
+  cited it. Fixing one authored claim can *invalidate* another you authored earlier, and nothing
+  points back at it; a concessive clause propping up a category ("it belongs here, just
+  differently") is the tell that it already broke.
 
 When a check is too expensive to run, say the cause was not isolated. A reader can act on an
 acknowledged gap; a wrong cause they can only inherit.
