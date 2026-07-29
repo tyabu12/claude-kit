@@ -16,4 +16,4 @@ the gate to parse, and lives in a hand-typed argument rather than a committed, r
 **When you edit the Step 4 prompt (`skills/orchestrate/SKILL.md`) or `agents/code-reviewer.md`'s
 selective-read logic, re-run the negative control in `docs/code-review-path-scoped-rules.md`** — a
 guard's success case proves nothing; only the negative control does. The finding is Claude Code
-version-dependent (verified 2026-07-18), so also re-verify on a Claude Code upgrade.
+version-dependent (last re-measured 2026-07-29), so also re-verify on a Claude Code upgrade.

@@ -1,14 +1,16 @@
 # `/code-review` and path-scoped rules — a load-bearing finding
 
 **Observation verified 2026-07-18; injection mechanism re-measured 2026-07-24 on Claude Code
-2.1.218 (the 2026-07-18 explanation was wrong — see below). Volatile — this is Claude Code
+2.1.218 (the 2026-07-18 explanation was wrong — see below); created-mid-session non-injection added
+2026-07-29 on 2.1.220 (effect measured, mechanism not). Volatile — this is Claude Code
 version-dependent behavior; re-verify on a Claude Code upgrade and whenever the orchestrate Step 4
 reviewer prompt changes.**
 
 ## The finding
 
-Two separate claims live here; a 2026-07-24 re-probe falsified one and left the other standing.
-Keep them apart.
+Several claims live here, measured on different dates; a 2026-07-24 re-probe falsified one and left
+the others standing. Keep them apart — and keep each measured effect apart from the model fitted to
+it.
 
 **Observation (2026-07-18, assumed to still hold).** Claude Code's built-in **local** `/code-review`
 reads and applies always-loaded context — the repo's `CLAUDE.md`, and by the same tier
@@ -29,6 +31,30 @@ tool specifically, and editing loads a rule only because an edit `Read`s the fil
 negatives are single-session and could in principle be a per-session injection de-dup artifact rather
 than a genuine non-fire; the `Read` positive is robust (seen across fresh contexts, main and sub).
 
+**A second gate — the effect: a rule file created mid-session does not inject in that session.**
+Measured 2026-07-29 on Claude Code 2.1.220 (six fresh subagent probes against one editing session):
+two newly created path-scoped rules injected on **no** matching `Read` in the session that authored
+them, however well their `paths:` matched, while injecting normally in fresh subagent sessions
+reading the same targets. That is the effect, and it is what the guidance below rests on.
+
+*The mechanism is not measured.* A session-start snapshot of the rule set is the likeliest model,
+but the same six probes fit "new files are never added to a live discovery list" or "discovery is
+cached at first injection" equally well. Treat the snapshot as a working model, not as established —
+this doc exists because the 2026-07-18 explanation was a model fitted to an observation and stated
+as fact.
+
+**Scope: creation is what was probed; editing an existing rule was not.** Do not extend the effect
+to a `paths:` *edit* without measuring it — and note the two directions differ under the snapshot
+model, which predicts the session keeps the **pre-edit** glob: *broadening* a glob would then look
+absent on the newly-matched path, while *narrowing* one would have the rule keep firing on a path it
+no longer covers. Absence is not even the expected symptom in the narrowing case. An attempt to
+observe the edit case in the authoring session was confounded by the rule having already injected.
+
+That same confound is why the de-dup caveat above stays open. Separating de-dup from the created-file
+effect (fresh session, two distinct files matching one rule) returned a probe report that did not
+distinguish "injected again" from "still in context". Treat per-session de-dup as **unconfirmed**,
+not as an established second cause.
+
 **What this does NOT explain: why local `/code-review` misses path-scoped rules.** The observation
 stands; its cause is now open. `/code-review` may not drive the `Read` tool over changed files (it
 may read the diff by another path), or it may de-dup. Do not paper over this with the new mechanism —
@@ -48,6 +74,14 @@ coverage silently vanishes** — no error, the review just stops applying those 
 
 A guard's success case proves nothing; only a negative control does. Construct the thing the
 mechanism claims to catch and confirm it fires.
+
+> **Use a pre-existing rule, or start a fresh session after authoring one.** A `paths:` rule created
+> for this control does not inject in the session that created it (see above), and `/code-review`
+> runs in the **main session** (`.claude/rules/orchestrate.md`) — so it inherits that session's rule
+> set. The exposure is **step 2**, whose pass condition is a *non*-flag: the expected non-flag then
+> arrives with nothing measured, a false confirmation. Only half of step 2 is contaminated — the
+> within-run contrast (that `/code-review` *does* flag the `CLAUDE.md` violation) still holds. Step 3
+> is unaffected: its prompt reads the rule explicitly, so it never depends on auto-injection at all.
 
 1. In a repo that has a **path-scoped-only** convention (a rule in `.claude/rules/` with `paths:`
    frontmatter, where the convention appears ONLY there and NOT in `CLAUDE.md`), plant a change that

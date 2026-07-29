@@ -22,7 +22,7 @@ rules do not load themselves during *any* diff-driven review: a matching rule in
 and never from the `git diff` / `Grep` a review runs on, so a changed file you don't `Read`
 contributes no rule. This agent closes the gap by **explicitly** reading the rules that apply to the
 changed files. That explicit read is the entire point; do not skip it. See
-`docs/code-review-path-scoped-rules.md` for the measured mechanism (Claude Code 2.1.218), its
+`docs/code-review-path-scoped-rules.md` for the measured mechanism (Claude Code 2.1.220), its
 caveats, and the re-runnable negative control.
 
 ## Scope Guidance (Hard Constraint)
