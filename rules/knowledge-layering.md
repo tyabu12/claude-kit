@@ -118,20 +118,19 @@ it as fact. Three shapes, none expressible as a `Verify by` lookup:
   guard's success case proves nothing; only a negative control does. Scope it to the claim it
   defends: a check narrower than that claim (a files-only loop behind a files-and-directories
   completeness claim), or one that silently skips its exemptions instead of declaring them,
-  passes by construction.
+  passes by construction. And a control whose fixture a **sibling arm** can also reach reddens for
+  the wrong reason — read *which* message fired, not the exit code, and re-key the fixture until
+  only the guard can reach it.
 - **A classification or count built on an earlier claim** → when you fix that claim, grep what
   cited it. Fixing one authored claim can *invalidate* another you authored earlier, and nothing
   points back at it; a concessive clause propping up a category ("it belongs here, just
   differently") is the tell that it already broke.
 
-**Running a probe is not reading it.** An exit code cannot tell "the guard fired" from "something
-else did". Three readings go wrong by default: **assert the mutation's anchor matched** (a
-`replace` that silently no-ops reads as verified); **read which message or test name reddened**,
-since a sibling arm reaching the same fixture makes the control vacuous — re-key the fixture until
-only the guard can reach it; and treat a probe that stays **green** as a finding about the
-*fixtures*, not a redundant guard — a suite only reddens on states its fixtures build, so name the
-state the guard defends and check whether anything constructs it. Where a guard admits no in-suite
-control, say so and record the out-of-band procedure rather than leaving one that proves nothing.
+**A probe's outcome gets misread in both directions.** Assert that the mutation's anchor matched — a
+`replace` that silently no-ops leaves the original behaviour and reads as verified. And treat a probe
+that stays **green** as a finding about the *fixtures*, not a redundant guard: a suite only reddens on
+states its fixtures build, so name the state the guard defends and confirm something constructs it
+before concluding anything.
 
 When a check is too expensive to run, say the cause was not isolated. A reader can act on an
 acknowledged gap; a wrong cause they can only inherit.
