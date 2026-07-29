@@ -102,6 +102,7 @@ authoritative source:
 | A documented defect framed as **live** ("X `would` flow into Y") | grep every **writer** of the value, not just the reader — an upstream guard may already make it unreachable, in which case the comment is that guard's rationale, not a bug report. Subjunctive mood is the tell |
 | An external standard (RFC, SEO, HTTP, OAuth) | WebSearch + WebFetch the authority; verbatim-cite before locking the plan |
 | Vendor feature availability (free/paid tier) | WebFetch the canonical docs; verbatim-quote the "who can use this" box — never infer from search snippets |
+| A subagent's verdict on an external platform fact (SDK annotation, threading contract, API availability) | Re-derive it yourself — a verdict that *dismisses* a risk ends inquiry and is the expensive one to get wrong. Then run the prescribed check against a **known-positive control**: one that cannot redden is measuring nothing |
 
 ### Claims you author are assertions too
 
@@ -122,6 +123,15 @@ it as fact. Three shapes, none expressible as a `Verify by` lookup:
   cited it. Fixing one authored claim can *invalidate* another you authored earlier, and nothing
   points back at it; a concessive clause propping up a category ("it belongs here, just
   differently") is the tell that it already broke.
+
+**Running a probe is not reading it.** An exit code cannot tell "the guard fired" from "something
+else did". Three readings go wrong by default: **assert the mutation's anchor matched** (a
+`replace` that silently no-ops reads as verified); **read which message or test name reddened**,
+since a sibling arm reaching the same fixture makes the control vacuous — re-key the fixture until
+only the guard can reach it; and treat a probe that stays **green** as a finding about the
+*fixtures*, not a redundant guard — a suite only reddens on states its fixtures build, so name the
+state the guard defends and check whether anything constructs it. Where a guard admits no in-suite
+control, say so and record the out-of-band procedure rather than leaving one that proves nothing.
 
 When a check is too expensive to run, say the cause was not isolated. A reader can act on an
 acknowledged gap; a wrong cause they can only inherit.
