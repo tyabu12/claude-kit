@@ -83,8 +83,8 @@ this file, conversational scratch).
 ## Rule-writing self-check
 
 When a rule includes an **executable assertion** — a grep with an asserted hit count, a cited
-`file:line`, a `(#N)` claim, a cross-doc heading anchor — run it against current state **before
-commit**. The writer is the only one who reliably does; reviewers check the rule's *content*, not
+`file:line`, a `(#N)` claim, a cross-doc heading anchor, **or a self-quoted byte/line delta**
+(re-measure on the *final* commit) — run it against current state **before commit**. The writer is the only one who reliably does; reviewers check the rule's *content*, not
 the *check it prescribes*. Reconcile any divergence by sweeping the violation, reframing the
 assertion to match reality, or enumerating an explicit carve-out.
 
@@ -125,3 +125,8 @@ it as fact. Three shapes, none expressible as a `Verify by` lookup:
 
 When a check is too expensive to run, say the cause was not isolated. A reader can act on an
 acknowledged gap; a wrong cause they can only inherit.
+
+**A rules file created mid-session never injects in that session** — however correct its `paths:`,
+a working glob and a broken one look identical there (both absent). Verify a new or re-scoped rule
+from fresh subagent probes, one `Read` each, with a **positive** control. Mechanism, scope limits
+and re-runnable probes: `docs/code-review-path-scoped-rules.md`.
