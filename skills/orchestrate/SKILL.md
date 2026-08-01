@@ -62,11 +62,16 @@ confirmation — a wrong `test_command` produces a false green and ships a broke
 
 ## Step 0: Input Detection & Pre-flight
 
-**Project-override note (first thing):** a project's own `.claude/skills/orchestrate/` shadows this
-global skill automatically (same name, project scope wins), so this generic skeleton only runs when
-the repo has no project-specific `orchestrate`. If you nonetheless reach here in a repo that clearly
-ships bespoke orchestration under a *different* name, STOP and tell the user to invoke that instead
-— it carries project-specific gates this generic skill lacks.
+**Project-override note (first thing):** a project's own `.claude/skills/orchestrate/` is *intended*
+to shadow this global skill (same name, project scope), so this generic skeleton should only run when
+the repo has no project-specific `orchestrate`. But **project-vs-global skill precedence is not a
+documented guarantee** — a same-named project skill can silently fail to load, dropping you into this
+generic skeleton with a mismatched `PLAN_MARKER`. So verify, don't assume:
+- **Same-name shadow check:** if `.claude/skills/orchestrate/SKILL.md` exists in this repo yet you are
+  running *this* generic skill, the shadow failed — STOP and tell the user to re-invoke / check why
+  the project skill didn't take precedence, rather than proceeding with the wrong marker.
+- If you reach here in a repo that clearly ships bespoke orchestration under a *different* name, STOP
+  and tell the user to invoke that instead — it carries project-specific gates this generic skill lacks.
 
 Interpret `$ARGUMENTS`:
 - **`#N`**: Fetch issue via `gh issue view N`, use title/body as task spec. Check for an existing
@@ -98,8 +103,13 @@ repo; scope by the touched paths and confirm at G1.
    `opus`/`sonnet`; default `opus` if a field is absent). Derive `SLUG` from the branch.
    - **Coupling re-check:** if the resumed plan has any `🎭` item but `REVIEWER_MODEL=sonnet` or
      `SESSION_MODEL=sonnet`, warn and offer to upgrade to Opus before continuing.
-   - If **all items checked**: ensure you are on the branch/worktree, report "All complete,
-     proceeding to review", **skip to Step 4**.
+   - If **all items checked**: do **not** silently proceed to review. A fully-checked *last* plan
+     usually means its PR already merged — and on an **umbrella issue** that accumulates several
+     historical plan comments, `tail -1` lands on that finished plan, so auto-proceeding re-reviews
+     completed work instead of planning the new work the user actually wants. Ask: *"#N's last plan
+     is complete (its PR likely merged) — resume-review it, or start a NEW plan for new work on
+     #N?"* Only ensure you are on the branch/worktree and **skip to Step 4** on explicit
+     "resume-review"; otherwise treat as a fresh task (fall through to Step 1).
    - Report "Found plan on #N. {DONE}/{TOTAL} complete. Resuming from item {NEXT_ITEM}." **Skip
      Steps 1 and 1b** → go to Step 2.
 3. If no plan: proceed normally.
@@ -210,13 +220,15 @@ plugin, the agent name is namespaced `claude-kit:critic`.)
   5. Verify: `git branch --show-current`.
 
 **Worktree path hygiene** (holds for the rest of the session): the original checkout stays on another
-branch, so a tool that resolves to it instead of this worktree acts on the wrong tree silently. Every
-absolute Edit/Write path must point **inside** the worktree — invalidate any carried over from a
-*pre-worktree* tool result. Non-isolation subagents (Step 3 implementer, Step 4 reviewer) inherit this
-worktree's cwd, so their git normally resolves here — but embed **already-resolved** absolute paths in
-their prompts (capture the root once with `git rev-parse --show-toplevel`), never a `$(…)` the subagent
-re-runs against its own cwd, and never a reused pre-worktree path. A subagent whose git resolved to the
-original checkout instead would see an **empty phantom diff**.
+branch, so a tool that resolves to it instead of this worktree acts on the wrong tree silently.
+Non-isolation subagents (Step 3 implementer, Step 4 reviewer) inherit this
+worktree's cwd — but cwd inheritance for a non-isolation subagent is **not documented as guaranteed**
+(it has resolved to the *original* checkout in practice, yielding an empty phantom diff that reads as a
+false FAIL). So don't rely on it: capture the root once with `WORKTREE_ROOT=$(git rev-parse --show-toplevel)`
+and **embed `git -C {WORKTREE_ROOT}`** into every subagent prompt that runs git (Step 3 implementer,
+Step 4 reviewer) — never a bare `git` the subagent resolves against its own cwd, and never a `$(…)` it
+re-runs or a reused pre-worktree path. Same rule for absolute Edit/Write paths: resolve them under
+`{WORKTREE_ROOT}`, and invalidate any carried over from a *pre-worktree* tool result.
 
 ## Step 3: Implementation
 
@@ -247,6 +259,8 @@ split at soft ~800 changed lines / ~8 files / ~5 axes, hard-split above 1500 / 1
 `rules/subagent-usage.md`, or `~/.claude/rules/subagent-usage.md` if installed, for depth).
 
 > **Prompt template:** "You are implementing item {K} of a plan for this project.
+> Work inside `{WORKTREE_ROOT}` — treat every path below as rooted there and run tests/git via
+> `-C {WORKTREE_ROOT}` (or `cd` there first); do not rely on inherited cwd.
 > **Read the repo's `CLAUDE.md` first** — follow all its conventions.
 > **Task:** {ITEM_DESCRIPTION}. **Target file(s):** {PRIMARY_FILE_PATH}.
 > **Reference:** {existing similar file to mirror, if any}.
@@ -275,6 +289,11 @@ error output; on return, review the diff and commit. If Opus also fails, report 
 `lint_command`. On failure, fix, verify locally, commit with `🐛 fix:`, re-run. **Hard limit: 3
 iterations** — if still failing, report and ask whether to proceed to Step 4.
 
+> **Carve-out — no-source branches:** when the branch changed nothing the suite actually exercises
+> (docs-only, rules-only, comment-only), a full run is zero-signal — often many minutes for no
+> information. Scope to the impacted subset, or skip the suite with a one-line reason stated in the
+> PR, and still run `lint_command` if it covers the touched files (prose/markdown linters do).
+
 ## Step 4: Review — Gate G3
 
 **Before launching the reviewer,** `git fetch origin {DEFAULT_BRANCH}` and check `git rev-list --count
@@ -293,8 +312,10 @@ parses it; a project override that omits it breaks the gate. Split large diffs t
 soft ~800 lines / ~8 files / ~5 axes, hard above 1500 / 12 / 7 (this kit's `rules/subagent-usage.md`,
 or `~/.claude/rules/subagent-usage.md` if installed, for depth).
 
-> **Prompt:** "Review all changes on this feature branch. Run `git diff {DEFAULT_BRANCH}...HEAD` for
-> the full diff (all commits since branching). Read every changed file in full. Read the repo's
+> **Prompt:** "Review all changes on this feature branch. Run **`git -C {WORKTREE_ROOT} diff
+> {DEFAULT_BRANCH}...HEAD`** for the full diff (all commits since branching) — use the `-C` path, do
+> not rely on cwd; a bare `git` can resolve to the original checkout and show an empty phantom diff.
+> Read every changed file in full. Read the repo's
 > `CLAUDE.md`, and only the `.claude/rules/*.md` whose `paths:` frontmatter matches a changed file
 > (plus any rule that has no `paths:`) — path-scoped rules are NOT auto-loaded during a review, and
 > reading every rule wastes budget on a large rule set, so this explicit selective read is
@@ -320,8 +341,10 @@ dominant commit prefix (`feat→enhancement`, `fix→bug`, `docs→documentation
 
 Present the PR draft (informational; created automatically, no gate):
 - Title: emoji prefix + Conventional format, < 70 chars.
-- Body: summary bullets + test plan + `Closes #N` (omit in degraded mode). If the profile has a
-  `qa_section`, render it (concrete manual-QA steps or a one-line "not needed" + reason); else omit.
+- Body: summary bullets + test plan + issue link (omit in degraded mode). Use `Closes #N` **only when
+  this PR completes the issue**; for a non-final PR of a multi-PR / umbrella issue, use `Part of #N`
+  so merging it does not prematurely auto-close the issue. If the profile has a `qa_section`, render
+  it (concrete manual-QA steps or a one-line "not needed" + reason); else omit.
 
 **Push and create as two separate Bash calls** — never combine with `&&` (a leading `git push`
 breaks the `gh pr create --base`-anchored PR hooks):
