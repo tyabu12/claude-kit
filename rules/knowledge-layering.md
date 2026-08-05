@@ -125,6 +125,12 @@ it as fact. Three shapes, none expressible as a `Verify by` lookup:
   cited it. Fixing one authored claim can *invalidate* another you authored earlier, and nothing
   points back at it; a concessive clause propping up a category ("it belongs here, just
   differently") is the tell that it already broke.
+- **A gap list — and the remedy you prescribe for it** → each is an enumeration, inheriting the
+  blind spot of whatever it was drawn from. A residue record drawn from the section naming one
+  *kind* of gap cannot see the other kinds, and "re-run §X" is unpayable when §X never listed half
+  the items. Re-derive from what changed, then check the remedy actually reaches it. Two sets
+  written in sequence also read as a **partition** — state the overlap, or the reader does the
+  arithmetic wrong, in the direction that understates residue.
 
 **A probe's outcome gets misread in both directions.** Assert that the mutation's anchor matched — a
 `replace` that silently no-ops leaves the original behaviour and reads as verified. And treat a probe
