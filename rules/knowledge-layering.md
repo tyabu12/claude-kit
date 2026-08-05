@@ -110,7 +110,7 @@ The table covers claims you *lean on*. A **why-comment you write** is the same k
 it asserts runtime or library behaviour as the reason a mechanism exists — but it is authored at
 implementation *or review-fix* time and executed by nobody. Reviewers check whether the *code* is
 correct, not whether the *stated reason* is true, so a false one ships and the next reader inherits
-it as fact. Three shapes, none expressible as a `Verify by` lookup:
+it as fact. Four shapes, none expressible as a `Verify by` lookup:
 
 - **Why-comment on a mechanism** → delete the mechanism and run the tests. Green means the claim
   is false, or the tests never covered it.
