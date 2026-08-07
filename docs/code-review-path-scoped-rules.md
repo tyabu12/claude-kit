@@ -3,8 +3,8 @@
 **Observation verified 2026-07-18; injection mechanism re-measured 2026-07-24 on Claude Code
 2.1.218 (the 2026-07-18 explanation was wrong — see below); created-mid-session non-injection added
 2026-07-29 on 2.1.220 (effect measured, mechanism not). Volatile — this is Claude Code
-version-dependent behavior; re-verify on a Claude Code upgrade and whenever the orchestrate Step 4
-reviewer prompt changes.**
+version-dependent behavior; re-verify on a Claude Code upgrade and whenever the orchestrate
+template's Step 4 reviewer prompt changes.**
 
 ## The finding
 
@@ -60,9 +60,10 @@ stands; its cause is now open. `/code-review` may not drive the `Read` tool over
 may read the diff by another path), or it may de-dup. Do not paper over this with the new mechanism —
 re-run the negative control below against the current Claude Code before relying on the observation.
 
-## Why the orchestrate skill cares
+## Why the orchestrate template cares
 
-`skills/orchestrate/SKILL.md` Step 4 does NOT use `/code-review`. It launches a `code-reviewer`
+`skills/orchestrate-creator/orchestrate-template.md` Step 4 — inherited by every project
+`orchestrate` skill generated from it — does NOT use `/code-review`. It launches a `code-reviewer`
 subagent whose prompt **explicitly** tells it to read the `.claude/rules/*.md` matching the changed
 files. That explicit read is the *entire* mechanism by which project-specific review depth (which
 lives in path-scoped rules to keep the always-loaded budget small — see `rules/context-budget.md`)
@@ -100,7 +101,7 @@ this whole design (the orchestrate reviewer could then lean on `/code-review` mo
 
 ## Design consequence
 
-This is why orchestrate keeps an **Agent-based** reviewer instead of delegating Step 4 to
-`/code-review`: only an Agent gives an injection point ("read these rules") that reaches path-scoped
-depth. See `agents/code-reviewer.md` (the generic reviewer + selective-read logic) and Step 4 of
-`skills/orchestrate/SKILL.md`.
+This is why the orchestrate template keeps an **Agent-based** reviewer instead of delegating Step 4
+to `/code-review`: only an Agent gives an injection point ("read these rules") that reaches
+path-scoped depth. See `agents/code-reviewer.md` (the generic reviewer + selective-read logic) and
+Step 4 of `skills/orchestrate-creator/orchestrate-template.md`.
