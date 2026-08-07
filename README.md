@@ -11,7 +11,12 @@ see the two install sections below (they are not equivalent — read the
 
 **Skills** (`skills/`):
 - `dispatch` — batch fan-out: run independent small-to-medium tasks in parallel worktrees, each ending in a reviewed draft PR.
-- `orchestrate` — feature orchestration: plan → issue → worktree → implement → review → PR.
+- `orchestrate-creator` — scaffold a project-owned `/orchestrate` skill (plan → issue → worktree →
+  implement → review → PR) from a template, baking the project's parameters in at generation time;
+  re-run it to diff a generated skill against the current template. The kit deliberately ships no
+  runnable `orchestrate`: personal-scope skills override same-named project skills (documented
+  precedence — agents resolve the other way round, project wins), so a symlink-installed one would
+  shadow every project's own.
 - `promote-memories` — triage per-user memory into durable rules and retire shipped trackers.
 - `risk-review` — multi-perspective, bias-resistant risk review of a diff or design decision.
 - `skill-retro` — monthly evidence-driven retro of this kit's skills; proposes fixes as a draft PR.
@@ -21,7 +26,8 @@ see the two install sections below (they are not equivalent — read the
 **Agents** (`agents/`):
 - `critic` — bias-resistant reviewer using pre-mortem axis generation and rubric-based evaluation.
 - `implementer` — executes implementation work from a finalized plan.
-- `code-reviewer` — project-agnostic PASS/FAIL reviewer for `orchestrate`'s Step 4 gate; reads the
+- `code-reviewer` — project-agnostic PASS/FAIL reviewer for the Step 4 gate of a generated
+  `orchestrate` skill; reads the
   project's `CLAUDE.md` plus the `.claude/rules/**` whose `paths:` match the changed files. A
   project's own `.claude/agents/code-reviewer.md` shadows it (project scope wins).
 
@@ -58,7 +64,7 @@ a skill that cites one inlines the load-bearing fact and treats the path as dept
   read-surface traps for Draft-triage automation. No kit skill is a generator yet — this is a spec
   for the next one, and for consuming projects that copy it.
 - `code-review-path-scoped-rules.md` — why path-scoped `.claude/rules/**` are invisible to local
-  `/code-review`, and what `orchestrate` Step 4 does instead. Cited from `agents/code-reviewer.md`
+  `/code-review`, and what the orchestrate template's Step 4 does instead. Cited from `agents/code-reviewer.md`
   and `skills/write-adr/SKILL.md`.
 
 ## Install as a plugin
@@ -81,7 +87,7 @@ skills/agents without the hooks:
 (For a private repository, substitute the git URL — this works with your
 normal git credentials, no extra auth setup needed.)
 
-Plugin-delivered skills and agents are namespaced (`/claude-kit:orchestrate`,
+Plugin-delivered skills and agents are namespaced (`/claude-kit:orchestrate-creator`,
 `claude-kit:critic`), so they never collide with a project's own same-named
 assets.
 
