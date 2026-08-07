@@ -2,7 +2,7 @@
 name: orchestrate
 description: {{PROJECT_NAME}} feature orchestration — plan → issue → worktree → implement → review → PR, with model-tiered delegation and issue-comment resumption.
 allowed-tools: Read, Grep, Glob, Bash, Agent, Write, Edit, EnterWorktree, ExitWorktree
-argument-hint: "[description | issue-number | phase N]"
+argument-hint: "[description | issue-number{{PHASE_HINT}}]"
 ---
 
 <!-- generated-from: claude-kit skills/orchestrate-creator/orchestrate-template.md sha256:{{TEMPLATE_SHA12}} generated:{{GENERATED_DATE}} -->
@@ -59,8 +59,8 @@ spot-check alone.
 Interpret `$ARGUMENTS`:
 - **`#N`**: Fetch issue via `gh issue view N`, use title/body as task spec. Check for an existing
   plan (Resumption Detection below).
-<!-- CREATOR:IF roadmap exists -->
-- **`phase N`**: Read ONLY that Phase section of `{{ROADMAP_PATH}}`. Else treat as inline text.
+<!-- CREATOR:IF roadmap=present -->
+- **`phase N`**: Read ONLY that Phase section of `{{ROADMAP_PATH}}`.
 <!-- CREATOR:END -->
 - **(empty)**: Ask what to implement.
 - **Other text**: Use as inline task description.
@@ -322,8 +322,8 @@ Present the PR draft (informational; created automatically, no gate):
 - Body: summary bullets + test plan + issue link (omit in degraded mode). Use `Closes #N` **only when
   this PR completes the issue**; for a non-final PR of a multi-PR / umbrella issue, use `Part of #N`
   so merging it does not prematurely auto-close the issue.
-<!-- CREATOR:IF qa_section given — render the project's manual-QA requirement as a PR-body rule -->
-- Manual-QA section: {{QA_SECTION}}
+<!-- CREATOR:IF qa_section=given -->
+- Manual-QA section (render as a PR-body rule): {{QA_SECTION}}
 <!-- CREATOR:END -->
 
 **Push and create as two separate Bash calls** — never combine with `&&` (a leading `git push`

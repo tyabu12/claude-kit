@@ -15,7 +15,8 @@ see the two install sections below (they are not equivalent — read the
   implement → review → PR) from a template, baking the project's parameters in at generation time;
   re-run it to diff a generated skill against the current template. The kit deliberately ships no
   runnable `orchestrate`: personal-scope skills override same-named project skills (documented
-  precedence), so a global one would shadow every project's own.
+  precedence — agents resolve the other way round, project wins), so a symlink-installed one would
+  shadow every project's own.
 - `promote-memories` — triage per-user memory into durable rules and retire shipped trackers.
 - `risk-review` — multi-perspective, bias-resistant risk review of a diff or design decision.
 - `skill-retro` — monthly evidence-driven retro of this kit's skills; proposes fixes as a draft PR.
