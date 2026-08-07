@@ -1,100 +1,78 @@
 ---
 name: orchestrate
-description: Project-agnostic feature orchestration — plan → issue → worktree → implement → review → PR, driven by a per-project profile. A project's own `orchestrate` skill shadows this one (project scope wins over global).
+description: {{PROJECT_NAME}} feature orchestration — plan → issue → worktree → implement → review → PR, with model-tiered delegation and issue-comment resumption.
 allowed-tools: Read, Grep, Glob, Bash, Agent, Write, Edit, EnterWorktree, ExitWorktree
 argument-hint: "[description | issue-number | phase N]"
 ---
 
+<!-- generated-from: claude-kit skills/orchestrate-creator/orchestrate-template.md sha256:{{TEMPLATE_SHA12}} generated:{{GENERATED_DATE}} -->
+
 # /orchestrate
 
-Generic orchestration skeleton: plan → issue → worktree → implementation → review → PR, with
-model-tiered delegation and issue-comment resumption. The **project-specific bits** (test/lint
-commands, commit-time gate, sensitive paths, TDD policy) come from a **project profile**, not from
-this file.
+Orchestrate the full development workflow for {{PROJECT_NAME}}: plan → issue → worktree →
+implementation → review → PR.
 
-> **Not a line-synced mirror.** A project-local skill with the same name (`orchestrate`) shadows
-> this one (project scope wins over global; see Step 0 guard). There is **no obligation to keep
-> this in sync** with any project's version — back-port *principles* only, never mechanics. A
-> project that needs richer, self-contained orchestration should ship its own `orchestrate` skill.
+> **Project-owned file.** Generated once by claude-kit's `/orchestrate-creator` (see the stamp
+> comment above); after that it belongs to this repo — edit it freely, kit updates never touch it.
+> To pull in later template improvements, run `/claude-kit:orchestrate-creator` again: it detects
+> the stamp, diffs this file against the current template, and proposes back-ports as a normal PR.
 >
 > **Subagent budget (inlined so this skill is self-contained).** Hard output-token caps (not
 > configurable): Opus 4.x 32,000 / Sonnet 4.x·5 64,000 / Haiku 4.x 8,192 / Fable 5 undocumented
 > (quality lever, not budget). Split delegated work at soft ~800 changed lines OR ~8 files OR ~5
 > review axes; hard-split above 1500 lines / 12 files / 7 axes. Budget exhaustion is silent (the
-> final report just goes missing). For more depth read this kit's `rules/subagent-usage.md` (or
-> `~/.claude/rules/subagent-usage.md` if installed); if absent, use the defaults above.
+> final report just goes missing). For more depth read this repo's `.claude/rules/subagent-usage.md`
+> or `~/.claude/rules/subagent-usage.md`, if either exists; else use the defaults above.
 
 ## Constants
 
-- `PLAN_MARKER`: `<!-- claude-orchestrate-plan -->` — machine-readable marker embedded in issue plan
-  comments for resumption detection. (Projects with their own `orchestrate` use their own marker; a
-  plan created here is only resumable here.)
+- `PLAN_MARKER`: `<!-- {{MARKER_SLUG}}-plan -->` — machine-readable marker embedded in issue plan
+  comments for resumption detection. **Project-unique by construction** — a marker shared with
+  another skill or repo makes resumption pick up foreign plans; never change it to a generic name.
 - `OWNER_REPO`: derived at runtime via `gh repo view --json nameWithOwner -q '.nameWithOwner'`.
   Resolve early in Step 0.
 
-## The project profile
+## Project parameters (baked at generation)
 
-Project-specific parameters are read from **`.claude/orchestrate.md`** in the repo (a repo-tracked,
-self-contained file — safe for other contributors, unlike a per-machine reference). Expected fields
-(all optional; sensible fallbacks below):
+| Parameter | Value |
+|---|---|
+| Test command | `{{TEST_COMMAND}}` |
+| Lint command | {{LINT_COMMAND_CELL}} |
+| Commit-time gate | {{COMMIT_GATE}} |
+| TDD | {{TDD_POLICY}} |
+| Plan-critique agent | `{{CRITIC_AGENT}}` |
+| Review agent | `{{REVIEWER_AGENT}}` |
 
-| Field | Meaning | Fallback if absent |
-|---|---|---|
-| `test_command` | how to run the project's tests | infer from tooling (see Step 0), else ask |
-| `lint_command` | lint/format/typecheck gate, if any | infer, else skip with a warning |
-| `commit_gate` | `hook` (pre-commit hook enforces quality) or `none` | `none` → see gate note below |
-| `tdd` | `required` / `optional` / `n-a` | `optional` (tests required, TDD not mandated) |
-| `sensitive_paths` | extra globs that force an Opus reviewer | none (global base list still applies) |
-| `qa_section` | project-specific manual-QA rules for the PR body | omit the section |
-| `vcs` | `github` / `none` | detect via `gh auth status` + remote |
-
-**Commit-gate note (do not skip):** when `commit_gate=none`, there is no automated quality gate at
-commit time — so after a subagent's changes, the orchestrator MUST run `test_command` (and
-`lint_command` if set) explicitly and confirm green **before** committing. When `commit_gate=hook`,
-the hook is the gate and a diff spot-check suffices. Silent loss of this gate is the single most
-dangerous failure mode of a generic orchestrator — never let a subagent's work reach a commit on a
-spot-check alone in a `none` project.
-
-**If the profile is missing:** infer `test_command` / `lint_command` from the project (Step 0),
-**confirm the inferred values with the user at G1**, and then **offer to write `.claude/orchestrate.md`
-with the confirmed values** so subsequent runs are silent. Do not auto-detect-and-proceed without
-confirmation — a wrong `test_command` produces a false green and ships a broken commit.
+<!-- CREATOR:IF commit_gate=hook -->
+**Commit-gate note:** a pre-commit hook enforces quality at commit time — after a subagent's
+changes, a diff spot-check suffices before committing; the hook is the gate.
+<!-- CREATOR:ELSE (commit_gate=none) -->
+**Commit-gate note (do not skip):** there is no automated quality gate at commit time — so after a
+subagent's changes, the orchestrator MUST run `{{TEST_COMMAND}}` (and the lint command, if set)
+explicitly and confirm green **before** committing. Silent loss of this gate is the single most
+dangerous failure mode of an orchestrator — never let a subagent's work reach a commit on a
+spot-check alone.
+<!-- CREATOR:END -->
 
 ## Step 0: Input Detection & Pre-flight
-
-**Project-override note (first thing):** a project's own `.claude/skills/orchestrate/` is *intended*
-to shadow this global skill (same name, project scope), so this generic skeleton should only run when
-the repo has no project-specific `orchestrate`. But **project-vs-global skill precedence is not a
-documented guarantee** — a same-named project skill can silently fail to load, dropping you into this
-generic skeleton with a mismatched `PLAN_MARKER`. So verify, don't assume:
-- **Same-name shadow check:** if `.claude/skills/orchestrate/SKILL.md` exists in this repo yet you are
-  running *this* generic skill, the shadow failed — STOP and tell the user to re-invoke / check why
-  the project skill didn't take precedence, rather than proceeding with the wrong marker.
-- If you reach here in a repo that clearly ships bespoke orchestration under a *different* name, STOP
-  and tell the user to invoke that instead — it carries project-specific gates this generic skill lacks.
 
 Interpret `$ARGUMENTS`:
 - **`#N`**: Fetch issue via `gh issue view N`, use title/body as task spec. Check for an existing
   plan (Resumption Detection below).
-- **`phase N`**: If the project has a roadmap doc (`docs/ROADMAP.md` or per profile), read ONLY that
-  Phase section. Else treat as inline text.
+<!-- CREATOR:IF roadmap exists -->
+- **`phase N`**: Read ONLY that Phase section of `{{ROADMAP_PATH}}`. Else treat as inline text.
+<!-- CREATOR:END -->
 - **(empty)**: Ask what to implement.
 - **Other text**: Use as inline task description.
 
 Derive: `TASK_TYPE` (`feat`/`fix`, default `feat`); `SLUG` (kebab-case, `^[a-z0-9][a-z0-9-]{0,36}$`;
 sanitize or ask if it doesn't match).
 
-**Load the profile:** read `.claude/orchestrate.md` if present. If absent, infer commands from
-tooling — `package.json` scripts (`test`/`lint`/`typecheck`), `Makefile`/`justfile` targets,
-`Cargo.toml` (`cargo test`/`cargo clippy`), `go.mod` (`go test ./...`/`golangci-lint`), etc. **In a
-monorepo / multi-tool repo, commands differ per subproject** — do not assume one command covers the
-repo; scope by the touched paths and confirm at G1.
-
 ### Resumption Detection (`#N` only)
 
 1. Fetch issue comments, find `PLAN_MARKER`:
    ```bash
-   gh api "repos/${OWNER_REPO}/issues/N/comments" --jq '.[] | select(.body | contains("<!-- claude-orchestrate-plan -->")) | {id, body}' | tail -1
+   gh api "repos/${OWNER_REPO}/issues/N/comments" --jq '.[] | select(.body | contains("<!-- {{MARKER_SLUG}}-plan -->")) | {id, body}' | tail -1
    ```
    Use the **last** match.
 2. If found: set `RESUMING=true`, `ISSUE_NUMBER=N`, capture `COMMENT_ID`. Parse checkboxes
@@ -115,9 +93,8 @@ repo; scope by the touched paths and confirm at G1.
 3. If no plan: proceed normally.
 
 **Pre-flight** (in order):
-1. `gh auth status` — if unauthenticated OR `vcs=none`, run in **degraded mode**: no issue, no
-   checkpoint sync, **no resumption** (say so explicitly). Skip all `gh` steps; the plan lives only
-   in-session.
+1. `gh auth status` — if unauthenticated, run in **degraded mode**: no issue, no checkpoint sync,
+   **no resumption** (say so explicitly). Skip all `gh` steps; the plan lives only in-session.
 2. `git status` — warn on uncommitted changes.
 3. Verify on default branch (skip if `RESUMING`): `DEFAULT_BRANCH=$(gh repo view --json
    defaultBranchRef -q '.defaultBranchRef.name')` (fallback `git symbolic-ref refs/remotes/origin/HEAD`
@@ -143,26 +120,22 @@ repo; scope by the touched paths and confirm at G1.
    ```
    Present to the user; store as `PLAN_BODY`.
 3. **Assign a reviewer model** (single choice for the whole PR). Force **Opus** if any item touches
-   the **global sensitive base** — CI/build infra, auth/secrets/crypto, public API or protocol
-   signatures, IaC (Terraform/k8s), migrations, `.claude/**` tooling, security/privacy surface — OR
-   any glob in the profile's `sensitive_paths`. Otherwise **Sonnet** is acceptable only if every
-   item is strictly within the 🎵 simple criteria. **Coupling rule:** any 🎭 item ⇒ reviewer MUST be
-   Opus. When in doubt, Opus. Record in `## Metadata` as `- **Reviewer**: Opus (reason: …)`; store
-   the reason tail as `REVIEWER_RATIONALE`.
+   the **sensitive base** — CI/build infra, auth/secrets/crypto, public API or protocol
+   signatures, IaC (Terraform/k8s), migrations, `.claude/**` tooling, security/privacy surface{{SENSITIVE_PATHS_SUFFIX}}.
+   Otherwise **Sonnet** is acceptable only if every item is strictly within the 🎵 simple criteria.
+   **Coupling rule:** any 🎭 item ⇒ reviewer MUST be Opus. When in doubt, Opus. Record in
+   `## Metadata` as `- **Reviewer**: Opus (reason: …)`; store the reason tail as `REVIEWER_RATIONALE`.
 4. **Assign a session model** (label-driven only): any 🎭 item → `Session: Opus`; all 🎵 →
    `Session: Sonnet` (recommended — the cost lever; the implementation tail runs at Sonnet rates,
    and review quality is unaffected because the reviewer is assigned independently). Record as
    `- **Session**: Sonnet (reason: all items 🎵)`; store `SESSION_RATIONALE`. **Coupling:** a Sonnet
    session override is rejected when any item is 🎭 (warn, keep Opus).
-5. **If the profile was inferred, not read:** present the inferred `test_command` / `lint_command` /
-   `commit_gate` alongside the plan for confirmation, and offer to persist `.claude/orchestrate.md`.
-6. **Ask: "Proceed with this plan, reviewer-model, session-model (and inferred profile, if any)?"**
+5. **Ask: "Proceed with this plan, reviewer-model, session-model?"**
    For single-commit changes, combine G1 and G2, but still run Step 1b first.
 
 ## Step 1b: Plan Critique (REQUIRED unless `RESUMING`)
 
-Launch a `critic` subagent to review the plan for blind spots. (When this kit is consumed as a
-plugin, the agent name is namespaced `claude-kit:critic`.)
+Launch a `{{CRITIC_AGENT}}` subagent to review the plan for blind spots.
 
 > **Prompt:** "Review this implementation plan. Focus on: scope creep, missing edge cases,
 > integration risks with existing modules, assumptions not validated against the codebase, and —
@@ -181,12 +154,12 @@ plugin, the agent name is namespaced `claude-kit:critic`.)
 ### 2a: Issue & Plan Comment
 
 - **`RESUMING`:** skip.
-- **Degraded mode (`vcs=none` / unauthenticated):** skip; keep the plan in-session (no resumption).
+- **Degraded mode (unauthenticated):** skip; keep the plan in-session (no resumption).
 - **From `#N`:** post the plan as a comment on `#N`:
   ```bash
   COMMENT_ID=$(gh api "repos/${OWNER_REPO}/issues/N/comments" \
     -f body="$(cat <<'ORCH_PLAN'
-  <!-- claude-orchestrate-plan -->
+  <!-- {{MARKER_SLUG}}-plan -->
   ## Implementation Plan
 
   {PLAN_BODY}
@@ -236,11 +209,15 @@ Follow the plan. If `RESUMING`, start from `NEXT_ITEM`. Per item (`K` = plan ite
 
 ### 🎭 Complex — orchestrator implements directly
 
-1. If `tdd=required` (or the item is code with a test surface), write the test first. Skip for
-   docs-only / test-only items.
-2. Run `test_command` (targeted to the item's tests where possible) — confirm red (TDD).
+<!-- CREATOR:IF tdd=required -->
+1. Write the test first — TDD is required in this project. Skip only for docs-only / test-only items.
+<!-- CREATOR:ELSE (tdd=optional) -->
+1. If the item is code with a test surface, write the test first. Skip for docs-only / test-only
+   items.
+<!-- CREATOR:END -->
+2. Run `{{TEST_COMMAND}}` (targeted to the item's tests where possible) — confirm red (TDD).
 3. Write the implementation.
-4. Run `test_command` — confirm green.
+4. Run `{{TEST_COMMAND}}` — confirm green.
 5. Commit (project's commit convention).
 6. **Checkpoint sync** (skip in degraded mode) — check off item `K` in the plan comment:
    ```bash
@@ -255,8 +232,8 @@ Follow the plan. If `RESUMING`, start from `NEXT_ITEM`. Per item (`K` = plan ite
 Launch `Agent(model: "sonnet")` **without `isolation`** (shares the worktree). Subagents run
 **sequentially**, never in parallel. Give it `Read, Grep, Glob, Bash, Write, Edit` — NOT
 `EnterWorktree`/`ExitWorktree`. Bound the delegated scope so the report fits the output cap —
-split at soft ~800 changed lines / ~8 files / ~5 axes, hard-split above 1500 / 12 / 7 (this kit's
-`rules/subagent-usage.md`, or `~/.claude/rules/subagent-usage.md` if installed, for depth).
+split at soft ~800 changed lines / ~8 files / ~5 axes, hard-split above 1500 / 12 / 7 (see the
+budget note at the top of this file).
 
 > **Prompt template:** "You are implementing item {K} of a plan for this project.
 > Work inside `{WORKTREE_ROOT}` — treat every path below as rooted there and run tests/git via
@@ -265,7 +242,7 @@ split at soft ~800 changed lines / ~8 files / ~5 axes, hard-split above 1500 / 1
 > **Task:** {ITEM_DESCRIPTION}. **Target file(s):** {PRIMARY_FILE_PATH}.
 > **Reference:** {existing similar file to mirror, if any}.
 > Procedure: if implementation, follow the project's testing convention — write/adjust the test,
-> run `{test_command}` (targeted), confirm it fails, implement, run again, confirm it passes. If
+> run `{{TEST_COMMAND}}` (targeted), confirm it fails, implement, run again, confirm it passes. If
 > docs-only or test-only, make the change directly. **Do NOT commit** — leave changes unstaged; the
 > orchestrator reviews and commits. If tests still fail after your best effort, return a summary of
 > what you tried and the error output."
@@ -273,8 +250,12 @@ split at soft ~800 changed lines / ~8 files / ~5 axes, hard-split above 1500 / 1
 **After the subagent returns:**
 1. `git status` — verify expected changes only.
 2. Read `git diff` fully before writing the commit message.
-3. **Gate:** if `commit_gate=none`, run `test_command` (and `lint_command`) yourself and confirm
-   green. If `commit_gate=hook`, a convention spot-check suffices (the hook enforces the rest).
+<!-- CREATOR:IF commit_gate=hook -->
+3. **Gate:** a convention spot-check suffices — the pre-commit hook enforces the rest.
+<!-- CREATOR:ELSE (commit_gate=none) -->
+3. **Gate:** run `{{TEST_COMMAND}}` (and the lint command) yourself and confirm green — there is no
+   commit-time hook to catch a failure.
+<!-- CREATOR:END -->
 4. Commit.
 5. Checkpoint sync (same PATCH as above; skip in degraded mode).
 
@@ -285,14 +266,15 @@ orchestrator finishes it via the 🎭 flow; `SESSION_MODEL=sonnet` → delegate 
 error output; on return, review the diff and commit. If Opus also fails, report and offer
 `/model opus` + retry directly.
 
-**After all items,** run full verification from the main session: run `test_command` (full), then
-`lint_command`. On failure, fix, verify locally, commit with `🐛 fix:`, re-run. **Hard limit: 3
-iterations** — if still failing, report and ask whether to proceed to Step 4.
+**After all items,** run full verification from the main session: run `{{TEST_COMMAND}}` (full),
+then the lint command if the project has one. On failure, fix, verify locally, commit with
+`🐛 fix:`, re-run. **Hard limit: 3 iterations** — if still failing, report and ask whether to
+proceed to Step 4.
 
 > **Carve-out — no-source branches:** when the branch changed nothing the suite actually exercises
 > (docs-only, rules-only, comment-only), a full run is zero-signal — often many minutes for no
 > information. Scope to the impacted subset, or skip the suite with a one-line reason stated in the
-> PR, and still run `lint_command` if it covers the touched files (prose/markdown linters do).
+> PR, and still run the lint command if it covers the touched files (prose/markdown linters do).
 
 ## Step 4: Review — Gate G3
 
@@ -302,15 +284,11 @@ If the count is non-zero, offer a rebase before review; treat it as **mandatory*
 large generated / data files (lockfiles, generated code, schema dumps), where a rebase or
 non-conflicting auto-merge can drop upstream entries without surfacing a conflict.
 
-Launch a `code-reviewer` subagent with `model: $REVIEWER_MODEL` (lowercase `opus`/`sonnet`, from
-Metadata; defaults Opus). This kit ships a generic `code-reviewer` (`agents/code-reviewer.md`); a
-project's own `.claude/agents/code-reviewer.md` **shadows it automatically** (project scope wins over
-user/plugin scope — no port declaration needed). When this kit is consumed as a plugin, reference the
-generic as `claude-kit:code-reviewer` (a bare name does not reliably resolve to a plugin agent in a
-Tool call). Whichever reviewer runs MUST emit a `**Verdict**: PASS | FAIL` line — the gate loop below
-parses it; a project override that omits it breaks the gate. Split large diffs to avoid truncation —
-soft ~800 lines / ~8 files / ~5 axes, hard above 1500 / 12 / 7 (this kit's `rules/subagent-usage.md`,
-or `~/.claude/rules/subagent-usage.md` if installed, for depth).
+Launch a `{{REVIEWER_AGENT}}` subagent with `model: $REVIEWER_MODEL` (lowercase `opus`/`sonnet`, from
+Metadata; defaults Opus). The reviewer MUST emit a `**Verdict**: PASS | FAIL` line — the gate loop
+below parses it; a reviewer that omits it breaks the gate. Split large diffs to avoid truncation —
+soft ~800 lines / ~8 files / ~5 axes, hard above 1500 / 12 / 7 (see the budget note at the top of
+this file).
 
 > **Prompt:** "Review all changes on this feature branch. Run **`git -C {WORKTREE_ROOT} diff
 > {DEFAULT_BRANCH}...HEAD`** for the full diff (all commits since branching) — use the `-C` path, do
@@ -343,8 +321,10 @@ Present the PR draft (informational; created automatically, no gate):
 - Title: emoji prefix + Conventional format, < 70 chars.
 - Body: summary bullets + test plan + issue link (omit in degraded mode). Use `Closes #N` **only when
   this PR completes the issue**; for a non-final PR of a multi-PR / umbrella issue, use `Part of #N`
-  so merging it does not prematurely auto-close the issue. If the profile has a `qa_section`, render
-  it (concrete manual-QA steps or a one-line "not needed" + reason); else omit.
+  so merging it does not prematurely auto-close the issue.
+<!-- CREATOR:IF qa_section given — render the project's manual-QA requirement as a PR-body rule -->
+- Manual-QA section: {{QA_SECTION}}
+<!-- CREATOR:END -->
 
 **Push and create as two separate Bash calls** — never combine with `&&` (a leading `git push`
 breaks the `gh pr create --base`-anchored PR hooks):
