@@ -3,7 +3,7 @@ name: code-reviewer
 description: "Project-agnostic code reviewer for a feature branch or working diff. Reviews for correctness, security, test coverage, and adherence to the project's OWN conventions (CLAUDE.md + matching .claude/rules/**). Read-only; never modifies, builds, or commits. Emits a PASS/FAIL verdict so an orchestrator gate can parse it. The orchestrator chooses the model per invocation; sensitivity-heavy reviews benefit from a high-capability model."
 tools: Read, Grep, Glob, Bash
 maxTurns: 30
-# model: intentionally omitted — the caller (e.g. the /orchestrate skill's Step 4) selects the
+# model: intentionally omitted — the caller (e.g. a generated orchestrate skill's Step 4) selects the
 # model per invocation from whatever models are currently available; run standalone it inherits the
 # session model. Do not pin a fixed model here, so the roster can change without editing this file.
 ---
