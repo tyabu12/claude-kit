@@ -304,8 +304,11 @@ this file).
 1. **PASS** → Step 5.
 2. **FAIL:** (a) launch 1 read-only verify agent to filter false positives (e.g. force-unwrap
    flagged in test code that's exempt); (b) build the Review Action Summary table (`# | Issue |
-   Severity | Verification | Action | Reason`) and present it; (c) fix confirmed issues, skip false
-   positives; (d) re-run the reviewer.
+   Severity | Verification | Action | Reason`) and present it; (c) capture
+   `FIX_BASE=$(git rev-parse HEAD)`, then fix confirmed issues, skip false positives; (d) re-run
+   the reviewer **scoped to the fix**: prompt it with `git diff {FIX_BASE}...HEAD` plus the prior
+   FAIL items, verifying each fix and its immediate blast radius — not the whole branch.
+   Full-branch re-review only when a fix touched files outside the previously reviewed set.
 3. **Hard limit: 3 iterations** — if still FAIL, report remaining issues.
 
 ## Step 5: PR Creation
