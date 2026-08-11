@@ -86,8 +86,8 @@ so the skill output and the statusline read consistently:
 | family substring | badge | example |
 |------------------|-------|---------|
 | `fable`  | 📖 | 📖 **Fable 5** |
-| `opus`   | 🎭 | 🎭 **Opus 4.8** |
-| `sonnet` | 🎵 | 🎵 **Sonnet 4.6** |
+| `opus`   | 🎭 | 🎭 **Opus 5** |
+| `sonnet` | 🎵 | 🎵 **Sonnet 5** |
 | `haiku`  | 🍃 | 🍃 **Haiku 4.5** |
 
 If the name matches no known family, just bold it (no emoji). Use this badge form everywhere a model
@@ -140,7 +140,7 @@ Merge all `critic` outputs into one report:
 ...
 
 ## Stage 2: 評価（観点別）
-### 軸: [名前]  — model: <バッジ付きモデル名 例: 🎭 **Opus 4.8**>
+### 軸: [名前]  — model: <バッジ付きモデル名 例: 🎭 **Opus 5**>
 - **判定**: OK | Warning | Critical
 - **根拠**: ...
 - **推奨**: ...
