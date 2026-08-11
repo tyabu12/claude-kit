@@ -84,7 +84,9 @@ sanitize or ask if it doesn't match).
    `REVIEWER_MODEL`, `SESSION_MODEL` from the `## Metadata` block (normalize to lowercase
    `opus`/`sonnet`; default `opus` if a field is absent). Derive `SLUG` from the branch.
    - **Coupling re-check:** if the resumed plan has any `🎭` item but `REVIEWER_MODEL=sonnet` or
-     `SESSION_MODEL=sonnet`, warn and offer to upgrade to Opus before continuing.
+     `SESSION_MODEL=sonnet`, warn and offer to upgrade to Opus before continuing. If it is all
+     `🎵` with `REVIEWER_MODEL=sonnet`, re-confirm each item is strictly within the 🎵 simple
+     criteria — the label alone does not establish that (Step 1.3) — and offer the same upgrade.
    - If **all items checked**: do **not** silently proceed to review. A fully-checked *last* plan
      usually means its PR already merged — and on an **umbrella issue** that accumulates several
      historical plan comments, `tail -1` lands on that finished plan, so auto-proceeding re-reviews
@@ -115,12 +117,17 @@ sanitize or ask if it doesn't match).
      following an existing pattern, type/error additions, doc comments, minor fixes.
    - 🎭 **complex** — implemented by the orchestrator (session model): new design patterns,
      cross-layer changes, work near architectural boundaries, anything needing non-obvious judgment.
-   - **Tie-breaker — ask which doubt it is.** Not "is this too hard for Sonnet?": Claude 5 Sonnet
-     is strong at coding and agentic execution, so difficulty alone no longer decides this. Ask
-     whether the item is **fully specifiable in a self-contained prompt** — a 🎵 subagent inherits
-     none of this conversation. Spec still open, or the design only settles while implementing →
-     🎭. Spec settled, merely hard → 🎵. Also promote a 🎵 to 🎭 when subagent + verify overhead
-     exceeds the work itself (single-line edits, tiny doc tweaks).
+   - **The 🎭 list wins outright** — it names the *nature* of the work, not its difficulty, so a
+     matching item stays 🎭 however settled its spec is. The tie-breaker resolves only items that
+     match neither list.
+   - **Tie-breaker — ask which doubt it is.** Not "is this too hard for Sonnet?": as of the
+     Claude 5 generation (2026-08), difficulty or size alone no longer promotes an item. Ask
+     whether it is **fully specifiable in a self-contained prompt** — a 🎵 subagent inherits none
+     of this conversation. Concrete test: can you fill Step 3's 🎵 prompt slots *now* without
+     making a new design decision — target file(s), plus either an existing pattern to mirror or
+     an acceptance condition? No → 🎭. Yes, and merely hard → 🎵. **Can't tell → 🎭.** Also promote
+     a 🎵 to 🎭 when subagent + verify overhead exceeds the work itself (single-line edits, tiny
+     doc tweaks).
 
    ```
    - [ ] 1. 🎵 <description> (`<primary-file-path>`)
@@ -131,14 +138,15 @@ sanitize or ask if it doesn't match).
    the **sensitive base** — CI/build infra, auth/secrets/crypto, public API or protocol
    signatures, IaC (Terraform/k8s), migrations, `.claude/**` tooling, security/privacy surface{{SENSITIVE_PATHS_SUFFIX}}.
    Otherwise **Sonnet** is acceptable only if every item is strictly within the 🎵 simple criteria.
+   **Test that independently — a 🎵 label does not certify it.** The tie-breaker also routes
+   "specifiable but merely hard" items to 🎵, and those are not strictly simple; if the plan has
+   one, the reviewer is Opus (keep `Session: Sonnet` — the cost lever survives).
    **Coupling rule:** any 🎭 item ⇒ reviewer MUST be Opus — a 🎭 label means non-obvious judgment
-   or an architectural boundary, where a missed defect is most expensive. Those rules leave
-   exactly one open case — every item 🎵 and strictly simple — which the labels have already
-   certified; do not add a further "if unsure, go up", which can only cancel it. Record in
+   or an architectural boundary, where a missed defect is most expensive. Record in
    `## Metadata` as `- **Reviewer**: Opus (reason: …)`; store the reason tail as `REVIEWER_RATIONALE`.
 4. **Assign a session model** (label-driven only): any 🎭 item → `Session: Opus`; all 🎵 →
    `Session: Sonnet` (recommended — the cost lever; the implementation tail runs at Sonnet rates,
-   and review quality is unaffected because the reviewer is assigned independently). Record as
+   while the reviewer is set by step 3's own strictly-simple test, not by this choice). Record as
    `- **Session**: Sonnet (reason: all items 🎵)`; store `SESSION_RATIONALE`. **Coupling:** a Sonnet
    session override is rejected when any item is 🎭 (warn, keep Opus).
 5. **Ask: "Proceed with this plan, reviewer-model, session-model?"**
