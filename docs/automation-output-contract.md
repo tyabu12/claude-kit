@@ -32,8 +32,8 @@ mechanics.
 2. **Judgment-needed → issue only, never an auto-fix.** Anything whose fix requires a human
    decision is filed as an issue whose body carries a **confidence score** and an explicit
    **counter-evidence / "why this might be wrong"** section — both produced back at detection, not
-   composed at filing time (rule 6). This applies to every judgment output
-   a generator emits, including recommendations to discard work.
+   composed at filing time (rule 6). This applies to every judgment output a generator emits,
+   including recommendations to discard work.
 3. **The auto-fix path edits authoritative-source-computed values only — never free-form prose —
    and splices at the detected token's exact offset, not by free-text replace.** This bound is what
    makes omitting a code-review pass safe (see below). A detector that wants to auto-fix something
@@ -47,72 +47,66 @@ mechanics.
    eyeballed it for a given repo state — and never let a skill self-register its own schedule;
    scheduling is a separate, deliberate human act.
 6. **Conservative *output*, exhaustive detection — filter at the output stage and account for the
-   drops.** **Changed 2026-08-12** — this rule previously read *"Conservative detection wins. Prefer
-   a miss over a wrong flag"*, which put the filter in the **detection** stage; a copy that still
-   reads that way predates this change and needs reconciling. The precision bias behind it is right
-   and stays: a wrong auto-fix PR, a false issue, a wrong "ready to merge" (which a human may
-   rubber-stamp), or a wrong "discard this" (which destroys queued work) all cost more than a missed
-   finding — they spend reviewer attention *and* erode trust in the generator; a miss only defers
-   work. What that bias must **not** do is move upstream into the detector
+   drops.** **Changed 2026-08-12**: this rule used to read *"Conservative detection wins. Prefer a
+   miss over a wrong flag"*, putting the filter in the **detection** stage; a copy still reading that
+   way needs reconciling. The precision bias stays — a wrong auto-fix PR, a false issue, a wrong
+   "ready to merge" (which a human may rubber-stamp), or a wrong "discard this" (which destroys
+   queued work) each spend reviewer attention *and* erode trust in the generator, while a miss only
+   defers work. What it must **not** do is move upstream into the detector
    (§ Why detection must not self-filter). Split the pass in two:
-   - **Detection is for coverage — do not filter here.** Enumerate every candidate; anything that
-     could route to rule 2 carries a **confidence**, an **estimated severity** and a
-     **counter-evidence** line from the moment it is found — so the output stage has a rank key, and
-     rule 2's fields are the detector's finding rather than an afterthought at filing time. (Rule 1's
-     mechanical lane needs none of them: its value has exactly one correct answer by definition.)
-     A model-driven detector also carries a coverage ceiling and **stops and says so** on approach,
-     rather than truncating quietly. The only legitimate suppression at this stage is **mechanical**,
-     and each form owes a count of what it removed:
-     - an enumerated **by-design / do-not-flag roster** — hand it to the detector verbatim;
+   - **Detection is for coverage — do not filter here.** Enumerate every candidate; anything routing
+     to rule 2 carries a **confidence**, an **estimated severity** and a **counter-evidence** line
+     from the moment it is found, so the output stage has a rank key and rule 2's fields are the
+     detector's finding rather than an afterthought at filing time. (Rule 1's mechanical lane needs
+     none of them — its value has exactly one correct answer.) A model-driven detector nearing its
+     coverage ceiling **stops and says so** rather than truncating quietly. The only legitimate
+     suppression here is **mechanical**, and each form owes a count of what it removed:
+     - an enumerated **by-design / do-not-flag roster**, handed to the detector verbatim;
      - an **evidence precondition** — no exact anchor, no concrete before → after ⇒ not a finding;
      - a **quota**, meaning *rank-then-truncate over an already-enumerated list* — never a cap on
-       generating candidates. A cap that stops the search cannot name what it excluded, and it
-       hollows out the arithmetic below, where `found` would already be the capped number.
+       generating candidates: a cap that stops the search cannot name what it excluded, and it
+       reduces `found` in the arithmetic below to the cap itself.
 
      A deterministic detector — a script, not a model — may hold its predicate in code, reviewable
-     at source. That exempts it from the ban on judgment, not from the count: report how many
-     candidates the threshold excluded. A near-miss tally is the cheapest evidence there is that a
-     bar sits too tight.
-   - **The output stage filters, conservatively, and leaves a trail.** Vet, dedup and rank here.
-     When evidence is short of decisive, route to the human-judgment bucket rather than up to
+     at source; that exempts it from the ban on judgment, not from the count. A near-miss tally is
+     the cheapest evidence there is that a bar sits too tight.
+   - **The output stage filters, conservatively, and leaves a trail.** Vet, dedup and rank here;
+     when evidence is short of decisive, route to the human-judgment bucket rather than up to
      "ready" or down to "discard". Publish the arithmetic — **found / filtered / deduped /
      surfaced**, plus whatever was capped or never reached — into a channel the run already writes;
-     never mint an artifact just to carry it. Then keep each rejection, with its reason, where the
-     *next* run can see it: a local ledger, an existing open-issue set, or the run log of a
-     generator that deliberately writes nothing — the **mechanism is project-owned** (§ What lives
-     where), and a generator that rejects nothing owes nothing. A finding dropped without a count is
-     indistinguishable from one never found: the next run re-derives it, drops it again, and nobody
-     ever learns the filter is set too tight.
+     never mint an artifact just to carry it. Keep each rejection and its reason where the *next* run
+     can see it: a local ledger, an existing open-issue set, or the run log of a generator that
+     deliberately writes nothing — the **mechanism is project-owned** (§ What lives where), and one
+     that rejects nothing owes nothing. An uncounted drop is indistinguishable from a finding never
+     made: the next run re-derives it, drops it again, and nobody learns the filter is too tight.
 
 ### Why detection must not self-filter
 
 Rule 6's split is a model-behaviour fact, not a style preference, and it is recent. Claude 5-series
-models apply a filtering instruction literally, and Anthropic's own guides say what that costs.
-**Sonnet 5's guide, § "Code review harnesses"**, on a review prompt that says *"only report
-high-severity issues"* or *"be conservative"* — the model "may investigate the code just as
-thoroughly, identify the bugs, and then not report findings it judges to be below your stated bar.
-[…] Precision typically rises, but measured recall can fall even though the model's underlying
-bug-finding ability has improved." (`[…]` elides one intervening sentence.) That same section's
-recommended finding-stage prompt asks for coverage outright, and for "your confidence level and an
-estimated severity so a downstream filter can rank them" — two of the three fields rule 6 now
-requires at detection. Counter-evidence is this contract's own addition on top, because rule 2 files
-on it. **Opus 5's guide**, in its "Code review and bug-finding" capability note, gives the
-remedy in one line: "ask it to report everything and filter in a separate pass instead."
+models apply a filtering instruction literally. **Sonnet 5's guide, § "Code review harnesses"**, on
+a review prompt that says *"only report high-severity issues"* or *"be conservative"*: the model
+"may investigate the code just as thoroughly, identify the bugs, and then not report findings it
+judges to be below your stated bar. […] Precision typically rises, but measured recall can fall even
+though the model's underlying bug-finding ability has improved." (`[…]` elides one intervening
+sentence.) That section's recommended finding-stage prompt instead asks for coverage, and for "your
+confidence level and an estimated severity so a downstream filter can rank them" — two of the three
+fields rule 6 requires at detection; counter-evidence is this contract's addition, because rule 2
+files on it. **Opus 5's guide** ("Code review and bug-finding") gives the remedy in one line: "ask
+it to report everything and filter in a separate pass instead."
 
-The loss is **invisible** — a run that surfaces three findings looks the same whether the detector
-found three or thirty — and it is worst on a harness carried over from an older model, where the
-conservative wording was chosen back when it bought a genuinely shallower pass. If a generator truly
-has only one pass, the guides' fallback applies: state the bar as a concrete predicate (their
-example is any bug that could cause incorrect behavior, a test failure, or a misleading result,
-omitting only nits like pure style or naming), never as a qualitative "important".
+The loss is **invisible** — three surfaced findings look the same whether the detector found three
+or thirty — and it is worst on a harness carried over from an older model, where the conservative
+wording once bought a genuinely shallower pass. A generator that truly has only one pass takes the
+guides' fallback: state the bar as a concrete predicate (their example: any bug that could cause
+incorrect behavior, a test failure, or a misleading result, omitting only nits like pure style or
+naming), never as a qualitative "important".
 
 Verified 2026-08-12 against
 [prompting-claude-opus-5](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5.md)
 and
 [prompting-claude-sonnet-5](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-sonnet-5.md).
-**This block is dated on purpose and travels into project copies** — re-check it on a
-model-generation change. The rule above survives a stale citation; the citation should not outlive
-its generation unnoticed.
+**This block is dated on purpose and travels into project copies** — re-check on a model-generation
+change: the rule survives a stale citation, the citation should not outlive its generation unnoticed.
 
 ### Why an auto-fix PR may skip a code-review pass
 
@@ -198,10 +192,10 @@ unique answer:
 - Project-canonical: the aggregate ceiling's **value** (a review-attention budget that differs per
   maintainer), each generator's own cap, the per-run **issue** cap on rule 2's lane, the **branch
   predicate** identifying automation PRs (it encodes one repo's generator roster), and the
-  **mechanism** rule 6's rejection trail uses — a file, an open-issue set and a run log are all
-  valid, and which one fits depends on what that generator is allowed to write. Keep these canonical
-  in the project; they are not mirrored here. (Rule 6's *requirement* that the trail exist at all is
-  kit-canonical: it rests on how a detector loses findings, not on anyone's preference.)
+  **mechanism** rule 6's rejection trail uses — a file, an open-issue set or a run log, whichever
+  fits what that generator is allowed to write. Keep these canonical in the project; they are not
+  mirrored here. (Rule 6's *requirement* that the trail exist at all is kit-canonical: it rests on
+  how a detector loses findings, not on anyone's preference.)
 
 Apply the test to the value's **dependency**, not to anyone's wish to change it — "a reasonable
 maintainer would tune this" is not the test, or every inconvenient limit becomes a default. A
