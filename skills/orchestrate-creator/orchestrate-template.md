@@ -120,14 +120,13 @@ sanitize or ask if it doesn't match).
    - **The 🎭 list wins outright** — it names the *nature* of the work, not its difficulty, so a
      matching item stays 🎭 however settled its spec is. The tie-breaker resolves only items that
      match neither list.
-   - **Tie-breaker — ask which doubt it is.** Not "is this too hard for Sonnet?": as of the
-     Claude 5 generation (2026-08), difficulty or size alone no longer promotes an item. Ask
-     whether it is **fully specifiable in a self-contained prompt** — a 🎵 subagent inherits none
-     of this conversation. Concrete test: can you fill Step 3's 🎵 prompt slots *now* without
-     making a new design decision — target file(s), plus either an existing pattern to mirror or
-     an acceptance condition? No → 🎭. Yes, and merely hard → 🎵. **Can't tell → 🎭.** Also promote
-     a 🎵 to 🎭 when subagent + verify overhead exceeds the work itself (single-line edits, tiny
-     doc tweaks).
+   - **Tie-breaker — is it fully specifiable?** Not "too hard for Sonnet?": difficulty or size
+     alone does not promote an item. A 🎵 subagent inherits none of this conversation, so ask: can
+     you fill Step 3's 🎵 prompt slots *now* without a new design decision — target file(s), plus
+     an existing pattern to mirror or an acceptance condition? Yes, even if hard → 🎵. No, or you
+     can't tell whether the slots are fillable → 🎭 (that specific uncertainty — not general
+     unease). Also promote a 🎵 to 🎭 when subagent + verify overhead exceeds the work itself
+     (single-line edits, tiny doc tweaks).
 
    ```
    - [ ] 1. 🎵 <description> (`<primary-file-path>`)
