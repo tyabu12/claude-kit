@@ -38,13 +38,17 @@ unquoted keys, so `json.load` will not parse it:
 python3 - <<'EOF'
 import re
 data = open('/path/to/claude/versions/<VERSION>', 'rb').read()
-start = data.rfind(b'{', 0, data.find(b'Hand-maintained baked-in model catalog'))
+anchor = data.find(b'Hand-maintained baked-in model catalog')
+assert anchor != -1, 'catalog comment not found — the CLI renamed it; re-find the anchor'
+start = data.rfind(b'{', 0, anchor)
 d = 0
 for j in range(start, start + 400_000):
     if data[j:j+1] == b'{': d += 1
     elif data[j:j+1] == b'}':
         d -= 1
         if d == 0: break
+else:
+    raise SystemExit('unbalanced braces — raise the 400,000-byte window')
 s = data[start:j+1].decode('utf-8', 'replace')
 for p in re.split(r'(?=\{id:")', s[s.find('models:'):]):
     mid = re.match(r'\{id:"([^"]+)"', p)
@@ -53,9 +57,11 @@ for p in re.split(r'(?=\{id:")', s[s.find('models:'):]):
 EOF
 ```
 
-Caveat: a remote `model-capabilities.json` can override the baked values at runtime (raising `upper`,
-lowering `default`). None was cached on this machine, so the baked catalog was authoritative here —
-check for one before trusting the extraction.
+Two caveats. A remote `model-capabilities.json` can override the baked values at runtime (raising
+`upper`, lowering `default`); none was cached on this machine, so the baked catalog was
+authoritative here — check for one before trusting the extraction. And the brace counter does not
+skip braces inside string or regex literals, which minified JS is full of, so a future build can
+desync it: sanity-check that the model ids it prints look like a complete roster.
 
 ## The controls
 
@@ -106,8 +112,9 @@ It did **not** force truncation there: the subagent split the work across three 
 stayed under 32,000 and reported `LIMIT_MSG=no`. That is a fact about the fixture, not the cap — an
 agent that chunks its own tool calls cannot be made to overflow this way, and a probe wanting the
 exact subagent cap needs one that cannot chunk (a single final message, whose size then lands in the
-orchestrator's context, which is why it was not run). The lower bound plus the two code facts above
-are what license treating the model's cap as the subagent's; the exact subagent ceiling is inferred.
+orchestrator's context, which is why it was not run). This lower bound, control 3, and consequences
+1 and 3 above together license treating the model's cap as the subagent's; the exact subagent
+ceiling is inferred, not measured.
 
 ### What the controls do not establish
 
@@ -129,12 +136,18 @@ date, or list the offending files and subtract them:
 ```sh
 python3 -c "
 import json,glob,os
+biggest, stops = 0, []
 for f in glob.glob(os.path.expanduser('~/.claude/projects/**/*.jsonl'), recursive=True):
     for line in open(f, errors='replace'):
         if '\"output_tokens\"' not in line: continue
         try: m = json.loads(line).get('message')
         except: continue
-        if isinstance(m, dict) and m.get('stop_reason') == 'max_tokens': print(f, m.get('model'))
+        if not isinstance(m, dict): continue
+        biggest = max(biggest, (m.get('usage') or {}).get('output_tokens') or 0)
+        if m.get('stop_reason') == 'max_tokens': stops.append((f, m.get('model')))
+print('largest single response:', biggest)
+print('max_tokens stops:', len(stops))
+for s in dict.fromkeys(stops): print('  ', s[0], s[1])
 "
 ```
 

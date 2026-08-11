@@ -69,8 +69,8 @@ assume a fixed roster; new tiers may exist). Match capability tier to difficulty
   enumeration, naming / convention adherence, obvious edge cases. Prefer this when unsure.
 - **Smallest tier**: only trivial mechanical checks.
 
-Sizing rule (avoid output-cap truncation): keep each cluster to ≤5 axes on capable models, and
-fewer (≤2-3, no narrative-evidence-heavy axes) when you pick a small-output-cap model. Don't
+Sizing rule (review attention, not tokens): keep each cluster to ≤5 axes, and fewer (≤2-3, no
+narrative-evidence-heavy axes) on 🍃 Haiku 4.5, whose 32,000 is half every other tier's. Don't
 default everything to the top tier — reserve it for genuinely hard clusters to control cost and
 latency.
 
@@ -123,7 +123,8 @@ Merge all `critic` outputs into one report:
   means the run died even earlier). **Split that cluster into smaller axis subsets and re-run as
   multiple critics** rather than merging a partial report. Do not reach for a different model to buy
   room: the Claude 5 tiers share one cap (Opus 5 · Sonnet 5 · Fable 5 all 64,000), and Haiku 4.5 is
-  *half* — so switching model can only lose headroom, never gain it. Splitting is the only lever.
+  *half* — so switching model can only lose headroom, never gain it. Short of raising
+  `CLAUDE_CODE_MAX_OUTPUT_TOKENS`, whose raise direction is unverified, splitting is the only lever.
 - De-duplicate overlapping findings across clusters.
 - Reconcile conflicting verdicts (state the conflict and your call). **Do not lower a critic's
   severity during reconciliation** — if you disagree with a Critical, keep it and append your

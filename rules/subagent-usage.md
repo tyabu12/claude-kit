@@ -32,18 +32,19 @@ the request builder has no main/subagent branch and the `Agent` tool passes no o
 | Fable 5 | **64,000** † | 128,000 † |
 | Haiku 4.5 | **32,000** | 64,000 † |
 
-Measured 2026-08-12 on Claude Code **2.1.228**; pre-5 generations are lower, so do not extrapolate
-backwards. **† = read from the shipped model catalog, not behaviourally verified** — only the
-unmarked caps were observed in a live run. Read any model's live cap in about two seconds, without
-having to provoke a truncation:
+Measured 2026-08-12 on Claude Code **2.1.228**. Pre-5 generations vary either way — Opus 4.6-4.8
+also sat at 64,000, Sonnet 4.x at 32,000, Haiku 3.5 at 8,192 — so do not extrapolate backwards.
+**† = read from the shipped model catalog, not behaviourally verified**; only the unmarked caps were
+observed in a live run. Read any model's live cap in about two seconds, without having to provoke a
+truncation:
 
 ```sh
 claude -p --model opus --output-format json "ok" | jq '.modelUsage[].maxOutputTokens'
 ```
 
 `CLAUDE_CODE_MAX_OUTPUT_TOKENS` is the only real budget lever, and it **does** reach subagents —
-contrary to what this rule claimed before, and confirmed by forcing it low and watching a subagent
-error out at the forced number. Tracked upstream:
+contrary to what this rule claimed before, and confirmed by forcing it to 1,200 and finding the
+subagent's own responses capped at exactly that number. Tracked upstream:
 [anthropics/claude-code#24055](https://github.com/anthropics/claude-code/issues/24055) (open).
 
 ## Caller-side scope discipline
@@ -64,17 +65,17 @@ files — is unreviewed by construction. Name the seam's owner, or add a final p
 
 ## Why the thresholds are not cap-derived
 
-They used to be, and the cap they were pinned to turned out never to apply to a spawnable model.
-Re-deriving would have loosened them fourfold; they were held instead, because in real use nothing
-has come near the cap and what they actually buy is review attention, which does not scale with a
-model's `max_tokens`. Revise them on evidence about review quality — not by recomputing when a cap
-moves. Numbers behind the call: `docs/subagent-output-cap.md`.
+They used to be, pinned to a cap no spawnable model ever had. The cap was never the binding
+constraint at these scopes; what they buy is review attention, which does not scale with a model's
+`max_tokens`. So revise them on review-quality evidence, not by recomputing when a cap moves —
+working behind that call: `docs/subagent-output-cap.md`.
 
 ## What a cap hit looks like now
 
 It is no longer silent: Claude Code detects `stop_reason: max_tokens`, nudges the agent to resume,
 and retries up to **3** times before surfacing an `API Error: … exceeded the N output token
-maximum.` The report survives — but it gains a **seam** where the cut happened.
+maximum.` The report usually survives with a **seam** where the cut happened — but if every resume
+also overflows, the run fails outright with that error and returns nothing.
 
 Review agents emit their verdict first, so the tell is a **count mismatch**: the summary claims more
 issues, axes, or findings than the body writes out, or names them with no evidence attached. That is
@@ -91,4 +92,5 @@ the same load. When work genuinely needs more room than the model has, split the
 
 Review-style agents should carry an inline scope check that bails with a `SCOPE_TOO_LARGE`
 signal *before* any tool use when the soft budget is exceeded. Defense in depth: because exhaustion
-shows up only as a seam mid-report, the duplication with the caller-side rule is intentional.
+usually shows up as nothing louder than a seam mid-report, the duplication with the caller-side rule
+is intentional.

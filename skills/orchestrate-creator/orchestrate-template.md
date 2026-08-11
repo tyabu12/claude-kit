@@ -18,8 +18,9 @@ implementation → review → PR.
 > the stamp, diffs this file against the current template, and proposes back-ports as a normal PR.
 >
 > **Subagent budget (inlined so this skill is self-contained).** Per-response output-token caps
-> (Claude Code 2.1.228): Opus 5 · Sonnet 5 · Fable 5 64,000 / Haiku 4.5 32,000 / pre-5 models 32,000
-> or lower. Model choice is a cost lever, not a budget lever — Sonnet buys no headroom over Opus.
+> (Claude Code 2.1.228): Opus 5 · Sonnet 5 · Fable 5 64,000 / Haiku 4.5 32,000; pre-5 models vary
+> either way (8,192 to 64,000). Model choice is a cost lever, not a budget lever — Sonnet buys no
+> headroom over Opus.
 > Split delegated work at soft ~800 changed lines OR ~8 files OR ~5 review axes; hard-split above
 > 1500 lines / 12 files / 7 axes — that bound is about review attention, not tokens. A cap hit is
 > not silent: it auto-resumes up to 3 times, leaving a seam mid-report whose tell is a count
@@ -234,9 +235,9 @@ Follow the plan. If `RESUMING`, start from `NEXT_ITEM`. Per item (`K` = plan ite
 
 Launch `Agent(model: "sonnet")` **without `isolation`** (shares the worktree). Subagents run
 **sequentially**, never in parallel. Give it `Read, Grep, Glob, Bash, Write, Edit` — NOT
-`EnterWorktree`/`ExitWorktree`. Bound the delegated scope to keep review quality — split at soft
-~800 changed lines / ~8 files / ~5 axes, hard-split above 1500 / 12 / 7 (see the budget note at the
-top of this file).
+`EnterWorktree`/`ExitWorktree`. Bound the delegated scope so the item stays reviewable in one pass
+— split at soft ~800 changed lines / ~8 files / ~5 axes, hard-split above 1500 / 12 / 7 (see the
+budget note at the top of this file).
 
 > **Prompt template:** "You are implementing item {K} of a plan for this project.
 > Work inside `{WORKTREE_ROOT}` — treat every path below as rooted there and run tests/git via
@@ -289,8 +290,8 @@ non-conflicting auto-merge can drop upstream entries without surfacing a conflic
 
 Launch a `{{REVIEWER_AGENT}}` subagent with `model: $REVIEWER_MODEL` (lowercase `opus`/`sonnet`, from
 Metadata; defaults Opus). The reviewer MUST emit a `**Verdict**: PASS | FAIL` line — the gate loop
-below parses it; a reviewer that omits it breaks the gate. Split large diffs to avoid truncation —
-soft ~800 lines / ~8 files / ~5 axes, hard above 1500 / 12 / 7 (see the budget note at the top of
+below parses it; a reviewer that omits it breaks the gate. Split large diffs to keep review quality
+— soft ~800 lines / ~8 files / ~5 axes, hard above 1500 / 12 / 7 (see the budget note at the top of
 this file).
 
 > **Prompt:** "Review all changes on this feature branch. Run **`git -C {WORKTREE_ROOT} diff
