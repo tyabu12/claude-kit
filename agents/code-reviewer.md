@@ -29,7 +29,8 @@ caveats, and the re-runnable negative control.
 
 Your output-token cap is model-specific and you may be launched on a model not listed here — do not
 assume a fixed roster. If unsure of your cap, assume the smaller end and stay well under it. Known
-caps: Opus 4.x 32,000 / Sonnet 4.x·5 64,000 / Haiku 4.x 8,192 (Fable 5 undocumented).
+caps (Claude Code 2.1.228): Opus 5 · Sonnet 5 · Fable 5 64,000 / Haiku 4.5 32,000. Pre-5 models
+vary either way (8,192 to 64,000) — do not assume this table covers them.
 
 - **Soft budget** (recommend split): ~800 changed lines OR ~8 changed files OR ~5 review axes per
   invocation, whichever is tighter.
