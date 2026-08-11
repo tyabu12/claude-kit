@@ -115,8 +115,12 @@ sanitize or ask if it doesn't match).
      following an existing pattern, type/error additions, doc comments, minor fixes.
    - 🎭 **complex** — implemented by the orchestrator (session model): new design patterns,
      cross-layer changes, work near architectural boundaries, anything needing non-obvious judgment.
-   - **When in doubt → 🎭.** Also promote a 🎵 to 🎭 when subagent + verify overhead exceeds the
-     work itself (single-line edits, tiny doc tweaks).
+   - **Tie-breaker — ask which doubt it is.** Not "is this too hard for Sonnet?": Claude 5 Sonnet
+     is strong at coding and agentic execution, so difficulty alone no longer decides this. Ask
+     whether the item is **fully specifiable in a self-contained prompt** — a 🎵 subagent inherits
+     none of this conversation. Spec still open, or the design only settles while implementing →
+     🎭. Spec settled, merely hard → 🎵. Also promote a 🎵 to 🎭 when subagent + verify overhead
+     exceeds the work itself (single-line edits, tiny doc tweaks).
 
    ```
    - [ ] 1. 🎵 <description> (`<primary-file-path>`)
@@ -127,7 +131,10 @@ sanitize or ask if it doesn't match).
    the **sensitive base** — CI/build infra, auth/secrets/crypto, public API or protocol
    signatures, IaC (Terraform/k8s), migrations, `.claude/**` tooling, security/privacy surface{{SENSITIVE_PATHS_SUFFIX}}.
    Otherwise **Sonnet** is acceptable only if every item is strictly within the 🎵 simple criteria.
-   **Coupling rule:** any 🎭 item ⇒ reviewer MUST be Opus. When in doubt, Opus. Record in
+   **Coupling rule:** any 🎭 item ⇒ reviewer MUST be Opus — a 🎭 label means non-obvious judgment
+   or an architectural boundary, where a missed defect is most expensive. Those rules leave
+   exactly one open case — every item 🎵 and strictly simple — which the labels have already
+   certified; do not add a further "if unsure, go up", which can only cancel it. Record in
    `## Metadata` as `- **Reviewer**: Opus (reason: …)`; store the reason tail as `REVIEWER_RATIONALE`.
 4. **Assign a session model** (label-driven only): any 🎭 item → `Session: Opus`; all 🎵 →
    `Session: Sonnet` (recommended — the cost lever; the implementation tail runs at Sonnet rates,
