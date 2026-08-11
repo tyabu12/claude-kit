@@ -120,12 +120,10 @@ Merge all `critic` outputs into one report:
 - **Integrity check first**: treat a critic output as truncated when its Summary Table lists axes
   the body never evaluates — `critic` emits that table **first** under cap pressure, so a *present*
   table with missing per-axis bodies is the shape truncation actually takes (a wholly absent table
-  means the run died even earlier). Re-run that cluster on a larger-output-cap model rather than
-  merging a partial report. A larger output cap is NOT the same as a more capable model (a mid tier
-  may have a bigger cap than the top tier), so for judgment-heavy axes prefer splitting over
-  downgrading capability. **If the cluster was already on the largest-cap model available, do not
-  retry it as-is** — split it into smaller axis subsets and re-run as multiple critics so each
-  stays well under its cap.
+  means the run died even earlier). **Split that cluster into smaller axis subsets and re-run as
+  multiple critics** rather than merging a partial report. Do not reach for a different model to buy
+  room: the Claude 5 tiers share one cap (Opus 5 · Sonnet 5 · Fable 5 all 64,000), and Haiku 4.5 is
+  *half* — so switching model can only lose headroom, never gain it. Splitting is the only lever.
 - De-duplicate overlapping findings across clusters.
 - Reconcile conflicting verdicts (state the conflict and your call). **Do not lower a critic's
   severity during reconciliation** — if you disagree with a Critical, keep it and append your

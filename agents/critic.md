@@ -45,9 +45,9 @@ downgrade to OK.
 
 - Your output-token cap is model-specific, and you may be launched on a model not listed here —
   do not assume a fixed roster. If you are unsure of your cap, assume the smaller end and stay well
-  under it. Known caps: Opus 4.x 32,000 / Sonnet 4.x·5 64,000 / Haiku 4.x 8,192 tokens (Fable 5
-  undocumented). A user's global `~/.claude/CLAUDE.md` may carry the same numbers; this file stands
-  alone.
+  under it. Known caps (Claude Code 2.1.228): Opus 5 · Sonnet 5 · Fable 5 64,000 / Haiku 4.5 32,000
+  tokens / pre-5 models 32,000 or lower. A user's global `~/.claude/CLAUDE.md` may carry the same
+  numbers; this file stands alone.
 - Do NOT emit assistant text between tool_use calls. Intermediate observations belong inside
   tool_use arguments. The final report is the only user-visible output.
 - Soft budget: target ≤5 axes and a small reading set per invocation. If the assigned scope is

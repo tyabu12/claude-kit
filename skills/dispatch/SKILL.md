@@ -13,10 +13,11 @@ merging, and follow-up on later CI/review comments stay with the user.
 
 Respond in the user's conversation language. Skip narration between tool calls.
 
-> **Subagent budget (inlined so this skill is self-contained).** Hard output-token caps (not
-> configurable): Opus 4.x 32,000 / Sonnet 4.x·5 64,000 / Haiku 4.x 8,192 / Fable 5 undocumented
-> (quality lever, not budget). Keep each dispatched task within ~800 changed lines. For more depth
-> read this kit's `rules/subagent-usage.md` (or `~/.claude/rules/subagent-usage.md` if installed).
+> **Subagent budget (inlined so this skill is self-contained).** Per-response output-token caps
+> (Claude Code 2.1.228): Opus 5 · Sonnet 5 · Fable 5 64,000 / Haiku 4.5 32,000 / pre-5 models 32,000
+> or lower. Model choice is a cost lever, not a budget lever — Sonnet buys no headroom over Opus.
+> Keep each dispatched task within ~800 changed lines. For more depth read this kit's
+> `rules/subagent-usage.md` (or `~/.claude/rules/subagent-usage.md` if installed).
 
 ## Pre-flight
 

@@ -124,7 +124,10 @@ unique answer:
 
 - Kit-canonical: the seven rules above, the backpressure *concept*, and the `gh` traps including
   their exit codes — `gh` behaves the same for every installer. (Same test puts the subagent
-  output-token caps kit-side: they are Claude Code's limits, not anyone's preference.)
+  output-token caps kit-side: they are Claude Code's limits, not anyone's preference. The split
+  thresholds beside them in `rules/subagent-usage.md` land kit-side too, but by a different route:
+  they rest on a *subagent's* review attention at a given scope — a model property, uniform across
+  installers — not on a maintainer's, which is what makes the WIP ceiling below project-owned.)
 - Project-canonical: the aggregate ceiling's **value** (a review-attention budget that differs per
   maintainer), each generator's own cap, and the **branch predicate** identifying automation PRs (it
   encodes one repo's generator roster). Keep these canonical in the project; they are not mirrored

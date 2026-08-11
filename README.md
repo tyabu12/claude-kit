@@ -58,7 +58,7 @@ the scripts), so the `claude-kit` plugin can ship without the hooks.
 **Docs** (`docs/`) — on-demand reference, deliberately outside `rules/` so it costs no per-turn
 context. **Neither install mode ships `docs/`** (`install.sh` symlinks `agents/`, `skills/`,
 `hooks/`, `rules/` only; plugins carry even less), so these are read from this repo or on GitHub —
-a skill that cites one inlines the load-bearing fact and treats the path as depth-only.
+a skill **or rule** that cites one inlines the load-bearing fact and treats the path as depth-only.
 - `automation-output-contract.md` — the contract an unattended generator (a skill that files PRs or
   issues on its own) must satisfy so it never bankrupts the reviewer's attention; plus the `gh`
   read-surface traps for Draft-triage automation. No kit skill is a generator yet — this is a spec
@@ -66,6 +66,9 @@ a skill that cites one inlines the load-bearing fact and treats the path as dept
 - `code-review-path-scoped-rules.md` — why path-scoped `.claude/rules/**` are invisible to local
   `/code-review`, and what the orchestrate template's Step 4 does instead. Cited from `agents/code-reviewer.md`
   and `skills/write-adr/SKILL.md`.
+- `subagent-output-cap.md` — how the per-model output caps in `rules/subagent-usage.md` were
+  obtained (catalog extraction plus three controls), and how to re-measure them in about two seconds
+  after a Claude Code upgrade. Cited from `rules/subagent-usage.md`.
 
 ## Install as a plugin
 

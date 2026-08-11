@@ -17,12 +17,15 @@ implementation → review → PR.
 > To pull in later template improvements, run `/claude-kit:orchestrate-creator` again: it detects
 > the stamp, diffs this file against the current template, and proposes back-ports as a normal PR.
 >
-> **Subagent budget (inlined so this skill is self-contained).** Hard output-token caps (not
-> configurable): Opus 4.x 32,000 / Sonnet 4.x·5 64,000 / Haiku 4.x 8,192 / Fable 5 undocumented
-> (quality lever, not budget). Split delegated work at soft ~800 changed lines OR ~8 files OR ~5
-> review axes; hard-split above 1500 lines / 12 files / 7 axes. Budget exhaustion is silent (the
-> final report just goes missing). For more depth read this repo's `.claude/rules/subagent-usage.md`
-> or `~/.claude/rules/subagent-usage.md`, if either exists; else use the defaults above.
+> **Subagent budget (inlined so this skill is self-contained).** Per-response output-token caps
+> (Claude Code 2.1.228): Opus 5 · Sonnet 5 · Fable 5 64,000 / Haiku 4.5 32,000 / pre-5 models 32,000
+> or lower. Model choice is a cost lever, not a budget lever — Sonnet buys no headroom over Opus.
+> Split delegated work at soft ~800 changed lines OR ~8 files OR ~5 review axes; hard-split above
+> 1500 lines / 12 files / 7 axes — that bound is about review attention, not tokens. A cap hit is
+> not silent: it auto-resumes up to 3 times, leaving a seam mid-report whose tell is a count
+> mismatch (summary claims more findings than the body writes out). For more depth read this repo's
+> `.claude/rules/subagent-usage.md` or `~/.claude/rules/subagent-usage.md`, if either exists; else
+> use the defaults above.
 
 ## Constants
 
@@ -231,9 +234,9 @@ Follow the plan. If `RESUMING`, start from `NEXT_ITEM`. Per item (`K` = plan ite
 
 Launch `Agent(model: "sonnet")` **without `isolation`** (shares the worktree). Subagents run
 **sequentially**, never in parallel. Give it `Read, Grep, Glob, Bash, Write, Edit` — NOT
-`EnterWorktree`/`ExitWorktree`. Bound the delegated scope so the report fits the output cap —
-split at soft ~800 changed lines / ~8 files / ~5 axes, hard-split above 1500 / 12 / 7 (see the
-budget note at the top of this file).
+`EnterWorktree`/`ExitWorktree`. Bound the delegated scope to keep review quality — split at soft
+~800 changed lines / ~8 files / ~5 axes, hard-split above 1500 / 12 / 7 (see the budget note at the
+top of this file).
 
 > **Prompt template:** "You are implementing item {K} of a plan for this project.
 > Work inside `{WORKTREE_ROOT}` — treat every path below as rooted there and run tests/git via

@@ -140,9 +140,9 @@ first and apply it"), and "return findings only — no edits, no file dumps".
 
 **Model choice**: Reviewer A is largely mechanical verification — a cheaper tier is appropriate.
 Reviewer B is a judgment read — keep it on the session model or better. Both are far inside the
-subagent output cap (hard, non-configurable: Opus 32K / Sonnet 64K / Haiku 8192 output tokens) for a
-single document; no scope split is needed here. Depth if installed via symlink:
-`rules/subagent-usage.md`.
+subagent output cap (Claude Code 2.1.228: Opus 5 · Sonnet 5 · Fable 5 64,000 / Haiku 4.5 32,000
+output tokens per response) for a single document; no scope split is needed here. Depth if installed
+via symlink: `rules/subagent-usage.md`.
 
 ## Step 4 — Converge
 
