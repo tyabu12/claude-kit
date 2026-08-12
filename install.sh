@@ -57,8 +57,8 @@ doctor() {
     elif [ "$name" = "memory" ]; then
       : # not linked by this script — reported only when it already exists
     else
-      # The state a newly-added link produces on a machine that has not re-run
-      # install.sh. Without this branch doctor prints nothing and exits 0.
+      # A link a release added but this machine never installed — without this
+      # branch doctor prints nothing and exits 0.
       echo "MISSING    ${dst} (no symlink — run ./install.sh)"
       status=1
     fi
@@ -93,10 +93,10 @@ if [ "${1:-}" = "doctor" ]; then
   doctor
 fi
 
-# Refuse to install from a git worktree: link() would repoint every ~/.claude entry
-# at the worktree, and removing it later silently dangles all of them — including
-# rules/, which is loaded in every session in every project. In a worktree, .git is
-# a file; in the main checkout it is a directory. `doctor` is read-only and runs above.
+# Refuse to install from a git worktree: link() would repoint every ~/.claude entry at
+# it, and removing it later silently dangles all of them — including rules/, loaded in
+# every session of every project. (.git is a file in a worktree, a directory in the main
+# checkout.) Deliberately below `doctor`, which is read-only and safe from anywhere.
 if [ -f "${KIT_DIR}/.git" ]; then
   echo "error: ${KIT_DIR} is a git worktree." >&2
   echo "       Installing from here would point ~/.claude at it; every link would" >&2

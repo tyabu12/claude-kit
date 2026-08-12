@@ -57,22 +57,20 @@ the scripts), so the `claude-kit` plugin can ship without the hooks.
 
 **Docs** (`docs/`) — on-demand reference, deliberately outside `rules/` so it costs no per-turn
 context. `install.sh` symlinks it to `~/.claude/kit-docs/`, which Claude Code does **not** auto-load
-— verified 2026-08-12 on Claude Code 2.1.228; volatile, re-verify on upgrade (method and probe:
-`docs/code-review-path-scoped-rules.md`). So citations resolve from any project while still costing
+(verified 2026-08-12 on Claude Code 2.1.228; volatile, re-verify on upgrade — method and probe:
+`docs/code-review-path-scoped-rules.md`), so a citation resolves from any project and still costs
 nothing.
 
-**How to cite a doc depends on how far the citing file travels:**
+**How to cite a doc depends on how far the citing file travels** — a repo-relative path inside a
+machine-wide file resolves against *whatever project happens to be open* and silently finds nothing:
 
 | citing file | cite as |
 |---|---|
-| loaded machine-wide (`rules/`, `agents/`, `skills/`) | `~/.claude/kit-docs/<name>.md` — plus `${CLAUDE_PLUGIN_ROOT}/docs/<name>.md` in `agents/` and `skills/`, which plugins do ship |
+| loaded machine-wide (`rules/`, `agents/`, `skills/`) | `~/.claude/kit-docs/<name>.md` — plus `${CLAUDE_PLUGIN_ROOT}/docs/<name>.md` in `agents/` and `skills/`, which plugins do ship; only a hand-copied `rules/*.md` is left with citations and no target |
 | this repo's own `.claude/rules/*.md` | repo-relative `docs/<name>.md` — these load only inside this checkout, where the relative path is right, and in a worktree it beats the symlink (which points at the main checkout) |
 
-A repo-relative path inside a machine-wide file resolves against *whatever project is open* — two
-of mine have a `docs/` of their own — and silently finds nothing. `/plugin install` does carry
-`docs/` in its cache (`${CLAUDE_PLUGIN_ROOT}/docs/`); only a hand-copied `rules/*.md` has the
-citations with no target. Either way a skill **or rule** that cites a doc still **inlines the
-load-bearing fact** and treats the path as depth-only.
+Either way a skill **or rule** that cites a doc still **inlines the load-bearing fact** and treats
+the path as depth-only.
 - `automation-output-contract.md` — the contract an unattended generator (a skill that files PRs or
   issues on its own) must satisfy so it never bankrupts the reviewer's attention; plus the `gh`
   read-surface traps for Draft-triage automation. No kit skill is a generator yet — this is a spec
