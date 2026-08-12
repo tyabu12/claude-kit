@@ -60,6 +60,34 @@ stands; its cause is now open. `/code-review` may not drive the `Read` tool over
 may read the diff by another path), or it may de-dup. Do not paper over this with the new mechanism —
 re-run the negative control below against the current Claude Code before relying on the observation.
 
+## What does *not* load: `~/.claude/kit-docs/`
+
+**Measured 2026-08-12 on Claude Code 2.1.228.** Volatile — same class of fact as everything above;
+re-verify on a Claude Code upgrade. This one is load-bearing in the *negative* direction: the kit
+symlinks `docs/` to `~/.claude/kit-docs/` (see `install.sh`) purely so that citations resolve from
+any project. If a future version ever *did* auto-load that directory, the kit would silently add the
+whole of `docs/` to every session — so the claim is worth re-running, not assuming.
+
+Instrument: an `InstructionsLoaded` hook (matcher `session_start`) dumping raw stdin to a log, run
+via `claude -p "ok" --settings <file>` with the symlink in place. The event reports
+`file_path, memory_type, load_reason` among the usual fields. Result — the log lists exactly:
+
+```
+~/.claude/CLAUDE.md
+<kit>/rules/context-budget.md
+<kit>/rules/knowledge-layering.md
+<kit>/rules/subagent-usage.md
+```
+
+Nothing under `kit-docs`. Those four files *are* the positive control: a probe that listed nothing
+at all would be measuring nothing. Note `file_path` is reported **post-symlink-resolution** (the kit
+paths, not the `~/.claude/rules/…` symlinks) — which is also why `claudeMdExcludes` patterns must be
+written against the resolved path.
+
+Separately verified the same day, both directions of the citation form: the `Read` tool expands `~`
+from the main session **and** from inside a subagent (a subagent handed the literal string
+`~/.claude/kit-docs/subagent-output-cap.md` read it successfully).
+
 ## Why the orchestrate template cares
 
 `skills/orchestrate-creator/orchestrate-template.md` Step 4 — inherited by every project

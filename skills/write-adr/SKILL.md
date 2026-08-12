@@ -118,8 +118,8 @@ context, and a path-scoped `.claude/rules/*.md` (one with `paths:` frontmatter) 
 auto-load for it — such a rule injects only from a `Read` on its path, which the subagent performs
 only if the prompt hands it that path. Passing the paths explicitly is therefore the entire mechanism by
 which project ADR standards reach the reviewers;
-omit it and the standards vanish with no error. (Depth, if this kit is installed via symlink rather
-than as a plugin: `docs/code-review-path-scoped-rules.md`.)
+omit it and the standards vanish with no error. (Depth: `code-review-path-scoped-rules.md`, under
+`~/.claude/kit-docs/` on a symlink install or `${CLAUDE_PLUGIN_ROOT}/docs/` on a plugin one.)
 
 Each prompt carries: the new ADR's path, `TEMPLATE_PATH`, `ADR_RULES_PATH` if found (with "read it
 first and apply it"), and "return findings only — no edits, no file dumps".
@@ -142,7 +142,7 @@ first and apply it"), and "return findings only — no edits, no file dumps".
 Reviewer B is a judgment read — keep it on the session model or better. Both are far inside the
 subagent output cap (Claude Code 2.1.228: Opus 5 · Sonnet 5 · Fable 5 64,000 / Haiku 4.5 32,000
 output tokens per response) for a single document; no scope split is needed here. Depth if installed
-via symlink: `rules/subagent-usage.md`.
+via symlink: `~/.claude/rules/subagent-usage.md`.
 
 ## Step 4 — Converge
 

@@ -9,8 +9,8 @@ behind any one-line cap mention there.
 > recomputed on upgrade, never retuned. The **split thresholds** are a review-attention bound, and
 > they stay kit-canonical because the attention they rest on is a *subagent's* at a given scope,
 > identical for everyone who installs the kit — not a maintainer's, which is what would make a
-> threshold project-owned (`docs/automation-output-contract.md` has that test). Evidence and the
-> re-measurement procedure: `docs/subagent-output-cap.md`.
+> threshold project-owned (`~/.claude/kit-docs/automation-output-contract.md` has that test).
+> Evidence and the re-measurement procedure: `~/.claude/kit-docs/subagent-output-cap.md`.
 >
 > The one genuinely local input is **report density per changed line**: 800 lines of generated
 > fixtures produce a far shorter report than 800 lines of dense source. That licenses bounding a
@@ -68,7 +68,7 @@ files — is unreviewed by construction. Name the seam's owner, or add a final p
 They used to be, pinned to a cap no spawnable model ever had. The cap was never the binding
 constraint at these scopes; what they buy is review attention, which does not scale with a model's
 `max_tokens`. So revise them on review-quality evidence, not by recomputing when a cap moves —
-working behind that call: `docs/subagent-output-cap.md`.
+working behind that call: `~/.claude/kit-docs/subagent-output-cap.md`.
 
 ## What a cap hit looks like now
 

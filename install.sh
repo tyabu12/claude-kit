@@ -40,7 +40,7 @@ doctor() {
   local status=0
   local checked=""
 
-  for name in agents skills hooks rules memory; do
+  for name in agents skills hooks rules kit-docs memory; do
     checked="$checked $name"
     local dst="${CLAUDE_DIR}/${name}"
     if [ -L "$dst" ]; then
@@ -54,6 +54,13 @@ doctor() {
       fi
     elif [ -e "$dst" ]; then
       echo "NOT-LINKED ${dst} (real file/dir)"
+    elif [ "$name" = "memory" ]; then
+      : # not linked by this script — reported only when it already exists
+    else
+      # A link a release added but this machine never installed — without this
+      # branch doctor prints nothing and exits 0.
+      echo "MISSING    ${dst} (no symlink — run ./install.sh)"
+      status=1
     fi
   done
 
@@ -86,6 +93,18 @@ if [ "${1:-}" = "doctor" ]; then
   doctor
 fi
 
+# Refuse to install from a git worktree: link() would repoint every ~/.claude entry at
+# it, and removing it later silently dangles all of them — including rules/, loaded in
+# every session of every project. (.git is a file in a worktree, a directory in the main
+# checkout.) Deliberately below `doctor`, which is read-only and safe from anywhere.
+if [ -f "${KIT_DIR}/.git" ]; then
+  echo "error: ${KIT_DIR} is a git worktree." >&2
+  echo "       Installing from here would point ~/.claude at it; every link would" >&2
+  echo "       dangle once the worktree is removed. Run install.sh from the main" >&2
+  echo "       checkout instead." >&2
+  exit 1
+fi
+
 if ! command -v jq >/dev/null 2>&1; then
   echo "warn: jq not found — hooks under hooks/ (force-push guard etc.) parse tool" >&2
   echo "      input with jq and will silently no-op (fail-open) without it." >&2
@@ -98,3 +117,6 @@ link "${KIT_DIR}/agents" "${CLAUDE_DIR}/agents"
 link "${KIT_DIR}/skills" "${CLAUDE_DIR}/skills"
 link "${KIT_DIR}/hooks" "${CLAUDE_DIR}/hooks"
 link "${KIT_DIR}/rules" "${CLAUDE_DIR}/rules"
+# Nothing under ~/.claude/kit-docs/ is auto-loaded, so this costs no per-turn context;
+# it exists so a docs/ citation in an always-loaded rule resolves from any project.
+link "${KIT_DIR}/docs" "${CLAUDE_DIR}/kit-docs"
