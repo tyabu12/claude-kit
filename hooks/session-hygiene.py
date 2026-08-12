@@ -6,10 +6,16 @@ assistant turn (timestamp / model / context size), and injects advisory
 context so Claude proactively suggests:
   1. a fresh session when resuming after a long idle gap (the prompt cache
      has expired — continuing pays a full cache rebuild of the whole context),
-  2. delegation / a session boundary when context exceeds 200k tokens
-     (every subsequent tool call re-reads the full context as cacheRead),
+  2. a session boundary when context exceeds 200k tokens (every subsequent
+     tool call re-reads the full context as cacheRead),
   3. reverting from a lingering Fable main session once the hard call is done
      (Fable cacheRead is 2x Opus).
+
+Every notice suggests something to the *user* at a task boundary and is
+wrapped with an explicit counter-line, because showing a model its own
+remaining-context number is the most common trigger for self-truncation
+(summarizing early, cutting scope, over-delegating). Keep that shape when
+editing the strings — see #21.
 
 Notices are informational only — the hook never blocks the prompt. All
 failures degrade to silence (exit 0, no output). Thresholds are informed by
@@ -29,6 +35,12 @@ CTX_WARN = 200_000           # per-turn cacheRead becomes the dominant cost
 CTX_STEP = 100_000           # re-notify only when crossing another 100k
 FABLE_RENOTIFY_SECS = 60 * 60  # remind about a lingering Fable main at most hourly
 TAIL_BYTES = 256 * 1024      # transcript tail window to scan
+
+# Counter-line appended to every injection: the numbers above are cost info for
+# a suggestion at the next boundary, never a cue to cut the work short.
+FOOTER = ('上記はコスト情報であり、今の作業を中断・縮小する理由にはしない。'
+          '現在の依頼は区切りまで通常どおり最後まで実行し、'
+          '要約への早期移行・スコープ縮小・打ち切りはしないこと。')
 
 
 def state_dir():
@@ -116,8 +128,9 @@ def build_notices(turn, state, now):
             state['ctx_bucket'] = bucket
             notices.append(
                 f'コンテキストが約{ctx // 1000}kトークンに達している。以降はツール呼び出し1回ごとに'
-                f'同量の cacheRead 課金が発生する。実装・探索はサブエージェントへ委譲し、'
-                'タスクの区切りが来たら新セッションへの移行をユーザーに提案すること。')
+                f'同量の cacheRead 課金が発生する。タスクの区切りが来たら新セッションへの移行を'
+                'ユーザーに提案すること(委譲するかどうかは通常どおりグローバル CLAUDE.md の基準で'
+                '判断し、この通知を理由に増やさない)。')
 
     if model.startswith('claude-fable'):
         last = float(state.get('fable_notified_at', 0))
@@ -153,7 +166,7 @@ def main():
     print(json.dumps({
         'hookSpecificOutput': {
             'hookEventName': 'UserPromptSubmit',
-            'additionalContext': f'<session-hygiene>\n{body}\n</session-hygiene>',
+            'additionalContext': f'<session-hygiene>\n{body}\n{FOOTER}\n</session-hygiene>',
         }
     }, ensure_ascii=False))
 
