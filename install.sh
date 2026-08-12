@@ -40,7 +40,7 @@ doctor() {
   local status=0
   local checked=""
 
-  for name in agents skills hooks rules memory; do
+  for name in agents skills hooks rules kit-docs memory; do
     checked="$checked $name"
     local dst="${CLAUDE_DIR}/${name}"
     if [ -L "$dst" ]; then
@@ -98,3 +98,6 @@ link "${KIT_DIR}/agents" "${CLAUDE_DIR}/agents"
 link "${KIT_DIR}/skills" "${CLAUDE_DIR}/skills"
 link "${KIT_DIR}/hooks" "${CLAUDE_DIR}/hooks"
 link "${KIT_DIR}/rules" "${CLAUDE_DIR}/rules"
+# Nothing under ~/.claude/kit-docs/ is auto-loaded, so this costs no per-turn context;
+# it exists so a docs/ citation in an always-loaded rule resolves from any project.
+link "${KIT_DIR}/docs" "${CLAUDE_DIR}/kit-docs"

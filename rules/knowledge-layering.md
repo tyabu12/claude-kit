@@ -144,4 +144,4 @@ acknowledged gap; a wrong cause they can only inherit.
 **A rules file created mid-session never injects in that session** — however correct its `paths:`,
 a working glob and a broken one look identical there (both absent). Verify a new or re-scoped rule
 from fresh subagent probes, one `Read` each, with a **positive** control. Mechanism, scope limits
-and re-runnable probes: `docs/code-review-path-scoped-rules.md`.
+and re-runnable probes: `~/.claude/kit-docs/code-review-path-scoped-rules.md`.

@@ -56,9 +56,13 @@ the scripts), so the `claude-kit` plugin can ship without the hooks.
 **Rules** (`rules/`) — see the co-install section below before assuming these are installed.
 
 **Docs** (`docs/`) — on-demand reference, deliberately outside `rules/` so it costs no per-turn
-context. **Neither install mode ships `docs/`** (`install.sh` symlinks `agents/`, `skills/`,
-`hooks/`, `rules/` only; plugins carry even less), so these are read from this repo or on GitHub —
-a skill **or rule** that cites one inlines the load-bearing fact and treats the path as depth-only.
+context. `install.sh` symlinks it to `~/.claude/kit-docs/`, which Claude Code does **not** auto-load,
+so citations resolve from any project while still costing nothing. Cite them as
+`~/.claude/kit-docs/<name>.md`, never repo-relative `docs/<name>.md`: the rules are read from every
+project on the machine, where a repo-relative path resolves against *that* project — several of
+which have a `docs/` of their own — and silently finds nothing. Plugin installs and hand-copied
+rules have the citations but not the target, so a skill **or rule** that cites a doc still
+**inlines the load-bearing fact** and treats the path as depth-only.
 - `automation-output-contract.md` — the contract an unattended generator (a skill that files PRs or
   issues on its own) must satisfy so it never bankrupts the reviewer's attention; plus the `gh`
   read-surface traps for Draft-triage automation. No kit skill is a generator yet — this is a spec
@@ -117,8 +121,9 @@ This delivers **skills and agents only** (plus hooks if you opted in).
 ```
 
 This symlinks `agents/`, `skills/`, `hooks/`, and `rules/` from this repo into
-`~/.claude/`, so edits here are live immediately — intended for the author's
-own machine.
+`~/.claude/`, plus `docs/` as `~/.claude/kit-docs/` (see the **Docs** entry
+above), so edits here are live immediately — intended for the author's own
+machine.
 
 - `./install.sh doctor` — diagnose the current state of `~/.claude`'s
   top-level symlinks (OK / DANGLING / NOT-LINKED), useful after moving or

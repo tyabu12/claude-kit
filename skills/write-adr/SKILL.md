@@ -119,7 +119,7 @@ auto-load for it — such a rule injects only from a `Read` on its path, which t
 only if the prompt hands it that path. Passing the paths explicitly is therefore the entire mechanism by
 which project ADR standards reach the reviewers;
 omit it and the standards vanish with no error. (Depth, if this kit is installed via symlink rather
-than as a plugin: `docs/code-review-path-scoped-rules.md`.)
+than as a plugin: `~/.claude/kit-docs/code-review-path-scoped-rules.md`.)
 
 Each prompt carries: the new ADR's path, `TEMPLATE_PATH`, `ADR_RULES_PATH` if found (with "read it
 first and apply it"), and "return findings only — no edits, no file dumps".
