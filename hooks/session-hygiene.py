@@ -17,6 +17,11 @@ remaining-context number is the most common trigger for self-truncation
 (summarizing early, cutting scope, over-delegating). Keep that shape when
 editing the strings — see #21.
 
+The notices are model-facing only (nobody reads this injection in the UI), so
+they are written in English: same instruction, fewer tokens than the Japanese
+they replaced. What the model then says to the *user* is governed by that
+user's own CLAUDE.md language rule, not by this file.
+
 Notices are informational only — the hook never blocks the prompt. All
 failures degrade to silence (exit 0, no output). Thresholds are informed by
 OTel analysis (2026-08): idle-gap cold rebuilds averaged ~370k cacheWrite
@@ -38,9 +43,9 @@ TAIL_BYTES = 256 * 1024      # transcript tail window to scan
 
 # Counter-line appended to every injection: the numbers above are cost info for
 # a suggestion at the next boundary, never a cue to cut the work short.
-FOOTER = ('上記はコスト情報であり、今の作業を中断・縮小する理由にはしない。'
-          '現在の依頼は区切りまで通常どおり最後まで実行し、'
-          '要約への早期移行・スコープ縮小・打ち切りはしないこと。')
+FOOTER = ('The above is cost information. It is not a reason to interrupt or shrink '
+          'the work in hand: complete the current request as usual, through to its '
+          'boundary — no early summarizing, no scope-cutting, no stopping short.')
 
 
 def state_dir():
@@ -117,29 +122,31 @@ def build_notices(turn, state, now):
     gap = (now - ts) if ts else 0
     if gap >= IDLE_GAP_SECS and ctx >= IDLE_MIN_CTX:
         notices.append(
-            f'前回の応答から約{int(gap // 60)}分経過しており、プロンプトキャッシュは失効済み。'
-            f'このセッションを続けると約{ctx // 1000}kトークンのキャッシュ再構築(cacheWrite)が発生する。'
-            'この依頼が後始末(CI/マージ確認・クリーンアップ)や文脈をほぼ要しない軽作業なら、'
-            '新しいセッションで行うことをユーザーに提案すること。')
+            f'The prompt cache has expired — about {int(gap // 60)} min since the last '
+            f'turn. Continuing this session costs a ~{ctx // 1000}k-token cache rebuild '
+            '(cacheWrite). If this request is wrap-up work (CI / merge checks, cleanup) '
+            'or otherwise needs little of the existing context, suggest to the user that '
+            'they do it in a fresh session.')
 
     if ctx >= CTX_WARN:
         bucket = ctx // CTX_STEP
         if bucket > int(state.get('ctx_bucket', 0)):
             state['ctx_bucket'] = bucket
             notices.append(
-                f'コンテキストが約{ctx // 1000}kトークンに達している。以降はツール呼び出し1回ごとに'
-                f'同量の cacheRead 課金が発生する。タスクの区切りが来たら新セッションへの移行を'
-                'ユーザーに提案すること(委譲するかどうかは通常どおりグローバル CLAUDE.md の基準で'
-                '判断し、この通知を理由に増やさない)。')
+                f'Context is at ~{ctx // 1000}k tokens; from here every tool call bills '
+                'that much again as cacheRead. When the current task reaches a boundary, '
+                'suggest moving to a fresh session. Delegation stays on the usual '
+                'CLAUDE.md criteria — do not delegate more because of this notice.')
 
     if model.startswith('claude-fable'):
         last = float(state.get('fable_notified_at', 0))
         if now - last >= FABLE_RENOTIFY_SECS:
             state['fable_notified_at'] = now
             notices.append(
-                'メインセッションが Fable で動作中。Fable の cacheRead 単価は Opus の2倍のため、'
-                'ハードな判断が済んでいる(残作業が実装・確認・後始末)なら、'
-                '/model opus への切り戻しか新セッションをユーザーに提案すること。')
+                'The main session is running on Fable, whose cacheRead price is 2x Opus. '
+                'If the hard call is already settled (implementation, verification and '
+                'cleanup are what is left), suggest /model opus or a fresh session to '
+                'the user.')
 
     return notices
 
