@@ -11,11 +11,14 @@ context so Claude proactively suggests:
   3. reverting from a lingering Fable main session once the hard call is done
      (Fable cacheRead is 2x Opus).
 
-Every notice suggests something to the *user* at a task boundary and is
-wrapped with an explicit counter-line, because showing a model its own
-remaining-context number is the most common trigger for self-truncation
-(summarizing early, cutting scope, over-delegating). Keep that shape when
-editing the strings — see #21.
+Every notice asks for one thing and one thing only: a suggestion to the
+*user*. Never a unilateral change of plan — notice 1 in particular fires at
+the *start* of a request and proposes redirecting it, so it must read as
+"say so", not "refuse to do it here". That is why every injection is wrapped
+with an explicit counter-line: showing a model its own remaining-context
+number is the most common trigger for self-truncation (summarizing early,
+cutting scope, over-delegating). Keep that shape when editing the strings,
+and keep the counter-line compatible with all three — see #21.
 
 The notices are model-facing only (nobody reads this injection in the UI), so
 they are written in English: same instruction, fewer tokens than the Japanese
@@ -41,11 +44,13 @@ CTX_STEP = 100_000           # re-notify only when crossing another 100k
 FABLE_RENOTIFY_SECS = 60 * 60  # remind about a lingering Fable main at most hourly
 TAIL_BYTES = 256 * 1024      # transcript tail window to scan
 
-# Counter-line appended to every injection: the numbers above are cost info for
-# a suggestion at the next boundary, never a cue to cut the work short.
-FOOTER = ('The above is cost information. It is not a reason to interrupt or shrink '
-          'the work in hand: complete the current request as usual, through to its '
-          'boundary — no early summarizing, no scope-cutting, no stopping short.')
+# Counter-line appended to every injection. It has to license the suggestion each
+# notice asks for (including notice 1's "do this in a fresh session") while denying
+# the model any unilateral trimming of its own work — hence "make the suggestion,
+# that is all it asks for", rather than a blanket "carry on regardless".
+FOOTER = ('The above is cost information. Make the suggestion it names — that is all it '
+          'asks for — and otherwise carry the current request through as usual, at the '
+          'scope it was given.')
 
 
 def state_dir():
