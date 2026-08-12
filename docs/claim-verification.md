@@ -1,8 +1,8 @@
 # Claim verification — which source settles which claim
 
 Depth behind `rules/knowledge-layering.md` § "Verify before you lock it", which carries the
-discipline and the three moments it fires at; this doc carries the per-shape checks. Nothing here is
-version-dependent, so it has no re-measurement trigger — it accretes as new failure shapes are met.
+discipline and the three moments it fires at; the per-shape checks live here. Nothing here is
+version-dependent, so there is no re-measurement trigger — it accretes as new failure shapes appear.
 
 The organising fact: **a claim is checked by whoever authors it, or by nobody.** A reviewer checks
 whether the code is correct and whether a rule's content is sensible — not whether the check a rule
@@ -11,9 +11,7 @@ claim ships intact and the next reader inherits it as fact.
 
 ## Claims you lean on
 
-Verify each against its authoritative source *before* the plan locks. A plan critique tests internal
-consistency, so an externally-false-but-plausible claim passes review and surfaces only in
-production.
+Verify each against its authoritative source *before* the plan locks.
 
 | Claim a plan leans on | Verify by |
 |---|---|
@@ -27,9 +25,8 @@ production.
 
 ## Claims you author
 
-A **why-comment you write** is the same kind of claim — it asserts runtime or library behaviour as
-the reason a mechanism exists — but it is authored at implementation *or review-fix* time and
-executed by nobody. Four shapes, none expressible as a `Verify by` lookup:
+Authored at implementation *or review-fix* time, and executed by nobody. Four shapes, none
+expressible as a `Verify by` lookup:
 
 - **Why-comment on a mechanism** → delete the mechanism and run the tests. Green means the claim
   is false, or the tests never covered it.
@@ -59,21 +56,14 @@ silently no-ops leaves the original behaviour and reads as verified. And treat a
 its fixtures build, so name the state the guard defends and confirm something constructs it before
 concluding anything.
 
-When a check is too expensive to run, say the cause was not isolated. A reader can act on an
-acknowledged gap; a wrong cause they can only inherit.
-
 ## The rule-assertion case
 
 A rule file is where authored claims concentrate, because a rule *is* a set of assertions about the
-repo. The shapes that need running against current state before commit: a grep with an asserted hit
-count, a cited `file:line`, a `(#N)` attribution, a cross-doc heading anchor, and a self-quoted
-byte/line delta — the last re-measured on the **final** commit, since review fixes move it.
+repo — and unlike a why-comment, the next reader runs them. Two reasons behind the rule's one-line
+version: a self-quoted byte/line delta is re-measured on the **final** commit because review
+fixes move it, and a diverged assertion left silently in place is the one wrong answer because that
+reader is the one who finds it.
 
-Reconcile a divergence one of three ways: sweep the violation so the assertion becomes true, reframe
-the assertion to match reality, or enumerate an explicit carve-out. Silently leaving the assertion
-is the only wrong answer, because the next reader will run it.
-
-**A rules file created mid-session never injects in that session** — however correct its `paths:`
-frontmatter, a working glob and a broken one look identical there (both absent). Verify a new or
-re-scoped rule from fresh subagent probes, one `Read` each, with a positive control. Mechanism,
-scope limits and re-runnable probes: `~/.claude/kit-docs/code-review-path-scoped-rules.md`.
+One shape has no in-session probe at all: a rules file created mid-session never injects in that
+session, so verify it from fresh subagent probes against a positive control. Mechanism, scope limits
+and re-runnable probes: `~/.claude/kit-docs/code-review-path-scoped-rules.md`.

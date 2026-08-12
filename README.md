@@ -78,7 +78,7 @@ the path as depth-only.
 - `claim-verification.md` — which source settles which kind of claim, the four ways a claim *you
   author* (a why-comment, a guard, a count, a gap list) goes wrong, and how a probe's outcome gets
   misread in both directions. Cited from `rules/knowledge-layering.md`, which keeps the discipline
-  and the three moments it fires at and delegates the per-shape checks here.
+  and the three moments it fires at, and delegates the per-shape checks here.
 - `code-review-path-scoped-rules.md` — why path-scoped `.claude/rules/**` are invisible to local
   `/code-review`, and what the orchestrate template's Step 4 does instead. Cited from `agents/code-reviewer.md`
   and `skills/write-adr/SKILL.md`.

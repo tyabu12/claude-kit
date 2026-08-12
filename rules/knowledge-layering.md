@@ -4,8 +4,7 @@ Part of claude-kit and the **canonical source** of this rule. Pairs with `contex
 (content discipline *within* a file); this rule covers **which tier** a piece of knowledge belongs
 in, and how to move it up.
 
-> **Kit-canonical, and the depth behind § "Verify before you lock it" — per-shape checks, the full
-> source table, how a probe's outcome gets misread — lives in
+> **Kit-canonical; the depth behind § "Verify before you lock it" lives in
 > `~/.claude/kit-docs/claim-verification.md`.** Reconcile a consumer mirror against **rule + doc as
 > a pair**, one-way (kit → consumer); a consumer copy must never become the source.
 
@@ -34,9 +33,9 @@ regardless of how generic it is — it is `user_*`-flavored, not a derivable fac
 ## Promotion & retirement
 
 Trigger triage on memory **count** or **total content size** (`cat memory/*.md | wc -c`), never the
-built-in MEMORY.md *index*-size warning — index lines are one-liners, so it fires far too late to
-rely on. Fold a promotion into a session already touching a rules file rather than opening a
-separate change, and use the pass to diff each rule here against any consumer copies you maintain.
+built-in MEMORY.md *index*-size warning — index lines are one-liners, so it fires far too late.
+Fold a promotion into a session already touching a rules file rather than opening a separate change,
+and use the pass to diff each rule here against any consumer copies you maintain.
 
 A pass **removes** as well as promotes — memory is not a durable store. Run the quick test first, so
 one memory can be promoted *and* then retired the same round: delete a fully-SHIPPED `project_*`
@@ -65,7 +64,7 @@ this file, conversational scratch).
 ## Verify before you lock it
 
 One discipline, three moments where a claim becomes load-bearing and nobody downstream will check
-it — a reviewer checks a rule's *content*, not the check it prescribes, and a plan critique tests
+it — a reviewer checks a rule's *content*, not the check it prescribes; a plan critique tests
 internal consistency, not external truth:
 
 - **Rule-commit** — an **executable assertion** (an asserted grep count, a cited `file:line`, a
@@ -73,23 +72,21 @@ internal consistency, not external truth:
   before commit, and re-measured on the *final* commit. Sweep the violation, reframe the assertion,
   or name an explicit carve-out — never leave it.
 - **Plan-lock** — verify every load-bearing claim against its authoritative source *before* the
-  plan locks; an externally-false-but-plausible one otherwise surfaces at code-review or in
-  production.
+  plan locks; a false one otherwise surfaces at code-review or in production.
 - **Authoring** — a why-comment, guard, count, or gap list *you write* asserts behaviour that
   nobody executes. Delete the mechanism and see whether the tests notice; construct what a guard
-  claims to catch and confirm it fires, because a success case proves nothing and only a negative
-  control does. Two that get missed: when you fix an authored claim, **grep what cited it** — a
-  count or classification built on it may now be false, and nothing points back at it; and a **gap
-  list**, with the remedy you prescribe for it, inherits the blind spot of whatever it was drawn
-  from.
+  claims to catch and confirm it fires, since only a negative control proves anything. Two that get
+  missed: when you fix an authored claim, **grep what cited it** — a count or classification built
+  on it may now be false, and nothing points back at it; and a **gap list**, with the remedy you
+  prescribe for it, inherits the blind spot of whatever it was drawn from.
 
 When a check is too expensive to run, say the cause was not isolated. A reader can act on an
 acknowledged gap; a wrong cause they can only inherit.
 
 **A rules file created mid-session never injects in that session** — however correct its `paths:`,
 a working glob and a broken one look identical there (both absent). Verify a new or re-scoped rule
-from fresh subagent probes, one `Read` each, with a **positive** control
-(`~/.claude/kit-docs/code-review-path-scoped-rules.md`).
+from fresh subagent probes, one `Read` each, with a **positive** control (probes and mechanism:
+`~/.claude/kit-docs/code-review-path-scoped-rules.md`).
 
-Worked examples of each shape, which source settles which kind of claim, and how a probe's *green*
-result gets misread: `~/.claude/kit-docs/claim-verification.md`.
+Worked examples, which source settles which kind of claim, and how a *green* probe gets misread:
+`~/.claude/kit-docs/claim-verification.md`.
