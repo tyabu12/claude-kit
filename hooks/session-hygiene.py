@@ -48,9 +48,15 @@ TAIL_BYTES = 256 * 1024      # transcript tail window to scan
 # notice asks for (including notice 1's "do this in a fresh session") while denying
 # the model any unilateral trimming of its own work — hence "make the suggestion,
 # that is all it asks for", rather than a blanket "carry on regardless".
-FOOTER = ('The above is cost information. Make the suggestion it names — that is all it '
-          'asks for — and otherwise carry the current request through as usual, at the '
-          'scope it was given.')
+# Two clauses are load-bearing and easy to drop as redundant. "where its own
+# condition holds": two of the three notices are conditional, and the Fable one
+# re-fires hourly regardless, so a bare imperative would push a /model opus
+# suggestion mid-hard-call. "same depth of investigation": the ctx notice prices
+# tool calls, which otherwise invites truncation-by-shallower-search — a scope
+# guarantee alone does not cover it.
+FOOTER = ('The above is cost information. Make the suggestion it names where its own '
+          'condition holds — that is all it asks for — and in every case carry the '
+          'current request through as usual: same scope, same depth of investigation.')
 
 
 def state_dir():
