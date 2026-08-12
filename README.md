@@ -74,13 +74,15 @@ the path as depth-only.
 - `automation-output-contract.md` — the contract an unattended generator (a skill that files PRs or
   issues on its own) must satisfy so it never bankrupts the reviewer's attention; plus the `gh`
   read-surface traps for Draft-triage automation. No kit skill is a generator yet — this is a spec
-  for the next one, and for consuming projects that copy it. Cited from `rules/subagent-usage.md`.
+  for the next one, and for consuming projects that copy it. Cited from `docs/subagent-output-cap.md`.
 - `code-review-path-scoped-rules.md` — why path-scoped `.claude/rules/**` are invisible to local
   `/code-review`, and what the orchestrate template's Step 4 does instead. Cited from `agents/code-reviewer.md`
   and `skills/write-adr/SKILL.md`.
 - `subagent-output-cap.md` — how the per-model output caps in `rules/subagent-usage.md` were
   obtained (catalog extraction plus four controls), and how to re-measure them in about two seconds
-  after a Claude Code upgrade. Cited from `rules/subagent-usage.md`.
+  after a Claude Code upgrade; plus the generational history, why the split thresholds are not
+  cap-derived, and the upstream issue. Cited from `rules/subagent-usage.md`, which keeps the numbers
+  and the decisions and delegates the rest here — reconcile a consumer mirror against the **pair**.
 
 ## Install as a plugin
 

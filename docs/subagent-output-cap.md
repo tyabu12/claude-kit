@@ -6,6 +6,11 @@ right for the 4.x generation and wrong for every Claude 5 model). Re-run the pro
 Claude Code upgrade. This doc is the depth behind that rule, which carries only the numbers and the
 decision they drive.
 
+**Do not extrapolate across generations in either direction.** Pre-5 figures vary both ways against
+the Claude 5 row: Opus 4.6-4.8 also sat at 64,000, Sonnet 4.x at 32,000, Haiku 3.5 at 8,192. A model
+family's cap is neither monotonic in release order nor stable within a family, so a new generation
+means re-reading the catalog, not adjusting the old numbers.
+
 ## What the cap actually is
 
 Claude Code sets `max_tokens` per request from a per-model `default`/`upper` pair, held in a
@@ -162,7 +167,11 @@ and retries up to 3 times, injecting a meta message into the agent's own context
 Only after those attempts does `API Error: Claude's response exceeded the N output token maximum.`
 reach the user. So the old rule's premise — a report whose substance silently goes missing — now
 costs extra turns and a seam mid-report instead, which is what the rule's count-mismatch heuristic
-is for.
+is for. That heuristic works because the kit's review agents are instructed to emit their **verdict
+first** and trim per-issue detail under pressure (`agents/code-reviewer.md`, "emit the Review Summary
+(with the Verdict line) FIRST"): the summary is written before the body it summarises, so a cut lands
+in the body and leaves the header over-claiming. An agent that summarised last would give no such
+tell — the heuristic is a property of these agent definitions, not of the platform.
 
 ## Why the split thresholds were held
 
@@ -179,6 +188,11 @@ attention**, which does not scale with `max_tokens`. The consequence for future 
 on evidence about review quality — a reviewer that misses things at 800 lines, or does fine at 1,500
 — and not by recomputing when a cap moves. A future cap change updates the table and leaves the
 thresholds alone unless it drops *below* them.
+
+That is also why the thresholds stay **kit-canonical** rather than becoming a per-project knob: the
+attention they are bounding is a *subagent's* at a given scope, identical for everyone who installs
+the kit. A threshold becomes project-owned only when the thing it bounds is the *maintainer's* own
+attention or tolerance — the test in `~/.claude/kit-docs/automation-output-contract.md`.
 
 ## Upstream
 
