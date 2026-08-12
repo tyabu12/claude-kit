@@ -6,10 +6,9 @@ right for the 4.x generation and wrong for every Claude 5 model). Re-run the pro
 Claude Code upgrade. This doc is the depth behind that rule, which carries only the numbers and the
 decision they drive.
 
-**Do not extrapolate across generations in either direction.** Pre-5 figures vary both ways against
-the Claude 5 row: Opus 4.6-4.8 also sat at 64,000, Sonnet 4.x at 32,000, Haiku 3.5 at 8,192. A model
-family's cap is neither monotonic in release order nor stable within a family, so a new generation
-means re-reading the catalog, not adjusting the old numbers.
+**Do not extrapolate a pre-5 cap from the Claude 5 row.** The gap is not uniform across families:
+Opus 4.6-4.8 already sat at 64,000, while Sonnet 4.x was at 32,000 and Haiku 3.5 at 8,192. A new
+generation means re-reading the catalog, not scaling the old numbers.
 
 ## What the cap actually is
 

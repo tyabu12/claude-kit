@@ -1,13 +1,12 @@
 # Subagent Usage — Output-Cap Discipline
 
-Part of claude-kit. Claude Code-specific mechanics; the generic "delegate / split / parallelize"
-spirit may live in a user's global `~/.claude/CLAUDE.md`.
+Part of claude-kit. Claude Code-specific mechanics.
 
 > **Kit-canonical, and the depth behind this rule — evidence, controls, re-measurement procedure —
 > lives in `~/.claude/kit-docs/subagent-output-cap.md`.** Reconcile a consumer mirror against
 > **rule + doc as a pair**, one-way (kit → consumer); a consumer copy must never become the source.
-> The two kinds of number age differently: the **cap table** is a platform limit, recomputed on a
-> Claude Code upgrade; the **split thresholds** move only on review-quality evidence.
+> Unlike the cap table below, the **split thresholds** move only on review-quality evidence, never
+> on a cap change.
 
 ## The cap
 
@@ -30,9 +29,8 @@ claude -p --model opus --output-format json "ok" | jq '.modelUsage[].maxOutputTo
 ```
 
 `CLAUDE_CODE_MAX_OUTPUT_TOKENS` is the only real budget lever, and it **does** reach subagents.
-Model choice is not one: Sonnet 5 and Opus 5 are both 64,000, so choose for capability and cost. The
-one budget-relevant asymmetry is **Haiku at half** (32,000) — do not hand it a report-heavy task on
-the assumption every model carries the same load.
+Model choice is not one — pick for capability and cost. The one asymmetry that matters: do not hand
+Haiku a report-heavy task on the assumption every model carries the same load.
 
 ## Caller-side scope discipline
 
@@ -53,10 +51,11 @@ files — is unreviewed by construction. Name the seam's owner, or add a final p
 
 ## Spotting a cap hit
 
-A hit is not silent — Claude Code retries the response, then fails the run outright — but what
-usually survives is a **seam** mid-report. So the tell is a **count mismatch**: the summary claims
-more issues, axes, or findings than the body writes out, or names them with no evidence attached.
-Split and re-run. A report that is short *and internally consistent* is just short.
+A hit is not silent: Claude Code auto-resumes the response, and what usually survives is a **seam**
+mid-report — only if every resume also overflows does the run fail outright. So the tell is a
+**count mismatch**: the summary claims more issues, axes, or findings than the body writes out, or
+names them with no evidence attached. Split and re-run. A report that is short *and internally
+consistent* is just short.
 
 ## Agent self-defense
 

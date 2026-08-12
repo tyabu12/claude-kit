@@ -80,9 +80,8 @@ the path as depth-only.
   and `skills/write-adr/SKILL.md`.
 - `subagent-output-cap.md` — how the per-model output caps in `rules/subagent-usage.md` were
   obtained (catalog extraction plus four controls), and how to re-measure them in about two seconds
-  after a Claude Code upgrade; plus the generational history, why the split thresholds are not
-  cap-derived, and the upstream issue. Cited from `rules/subagent-usage.md`, which keeps the numbers
-  and the decisions and delegates the rest here — reconcile a consumer mirror against the **pair**.
+  after a Claude Code upgrade; plus why the split thresholds are not cap-derived. Cited from
+  `rules/subagent-usage.md`, which keeps the numbers and the decisions and delegates the rest here.
 
 ## Install as a plugin
 
