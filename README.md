@@ -56,13 +56,23 @@ the scripts), so the `claude-kit` plugin can ship without the hooks.
 **Rules** (`rules/`) — see the co-install section below before assuming these are installed.
 
 **Docs** (`docs/`) — on-demand reference, deliberately outside `rules/` so it costs no per-turn
-context. `install.sh` symlinks it to `~/.claude/kit-docs/`, which Claude Code does **not** auto-load,
-so citations resolve from any project while still costing nothing. Cite them as
-`~/.claude/kit-docs/<name>.md`, never repo-relative `docs/<name>.md`: the rules are read from every
-project on the machine, where a repo-relative path resolves against *that* project — several of
-which have a `docs/` of their own — and silently finds nothing. Plugin installs and hand-copied
-rules have the citations but not the target, so a skill **or rule** that cites a doc still
-**inlines the load-bearing fact** and treats the path as depth-only.
+context. `install.sh` symlinks it to `~/.claude/kit-docs/`, which Claude Code does **not** auto-load
+— verified 2026-08-12 on Claude Code 2.1.228; volatile, re-verify on upgrade (method and probe:
+`docs/code-review-path-scoped-rules.md`). So citations resolve from any project while still costing
+nothing.
+
+**How to cite a doc depends on how far the citing file travels:**
+
+| citing file | cite as |
+|---|---|
+| loaded machine-wide (`rules/`, `agents/`, `skills/`) | `~/.claude/kit-docs/<name>.md` — plus `${CLAUDE_PLUGIN_ROOT}/docs/<name>.md` in `agents/` and `skills/`, which plugins do ship |
+| this repo's own `.claude/rules/*.md` | repo-relative `docs/<name>.md` — these load only inside this checkout, where the relative path is right, and in a worktree it beats the symlink (which points at the main checkout) |
+
+A repo-relative path inside a machine-wide file resolves against *whatever project is open* — two
+of mine have a `docs/` of their own — and silently finds nothing. `/plugin install` does carry
+`docs/` in its cache (`${CLAUDE_PLUGIN_ROOT}/docs/`); only a hand-copied `rules/*.md` has the
+citations with no target. Either way a skill **or rule** that cites a doc still **inlines the
+load-bearing fact** and treats the path as depth-only.
 - `automation-output-contract.md` — the contract an unattended generator (a skill that files PRs or
   issues on its own) must satisfy so it never bankrupts the reviewer's attention; plus the `gh`
   read-surface traps for Draft-triage automation. No kit skill is a generator yet — this is a spec
@@ -126,8 +136,11 @@ above), so edits here are live immediately — intended for the author's own
 machine.
 
 - `./install.sh doctor` — diagnose the current state of `~/.claude`'s
-  top-level symlinks (OK / DANGLING / NOT-LINKED), useful after moving or
-  removing this repo.
+  top-level symlinks (OK / DANGLING / NOT-LINKED / MISSING), useful after moving
+  or removing this repo, or after a release adds a link you have not installed
+  yet. `doctor` is read-only and safe from anywhere; **installing** refuses to
+  run from a git worktree, which would repoint `~/.claude` at a directory you
+  are about to delete.
 - `jq` is required for the hook guards (e.g. `block-force-push.sh`) to parse
   tool input; without it they fail open (silently no-op) rather than block
   anything. `install.sh` warns if `jq` is missing.
@@ -143,7 +156,8 @@ If you installed claude-kit as a plugin only, the rules are simply absent.
 The skills in this kit are written to degrade gracefully in that case —
 falling back to inline defaults — but for full behavior, co-install the
 rules with `./install.sh` (or copy `rules/*.md` into your own
-`~/.claude/rules/` by hand).
+`~/.claude/rules/` by hand — and `docs/` to `~/.claude/kit-docs/`, or the
+`~/.claude/kit-docs/…` citations inside those rules will not resolve).
 
 ## Scrubbing / privacy
 

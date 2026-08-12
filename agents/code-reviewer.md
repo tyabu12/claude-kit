@@ -22,8 +22,10 @@ rules do not load themselves during *any* diff-driven review: a matching rule in
 and never from the `git diff` / `Grep` a review runs on, so a changed file you don't `Read`
 contributes no rule. This agent closes the gap by **explicitly** reading the rules that apply to the
 changed files. That explicit read is the entire point; do not skip it. See
-`~/.claude/kit-docs/code-review-path-scoped-rules.md` for the measured mechanism
-(Claude Code 2.1.220), its caveats, and the re-runnable negative control.
+`~/.claude/kit-docs/code-review-path-scoped-rules.md` — or
+`${CLAUDE_PLUGIN_ROOT}/docs/code-review-path-scoped-rules.md` under a plugin install — for the
+measured mechanism (Claude Code 2.1.220), its caveats, and the re-runnable negative control. That
+depth is optional: if neither path exists, skip it, the paragraph above carries what you need.
 
 ## Scope Guidance (Hard Constraint)
 
