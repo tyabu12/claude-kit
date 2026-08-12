@@ -75,6 +75,10 @@ the path as depth-only.
   issues on its own) must satisfy so it never bankrupts the reviewer's attention; plus the `gh`
   read-surface traps for Draft-triage automation. No kit skill is a generator yet — this is a spec
   for the next one, and for consuming projects that copy it. Cited from `docs/subagent-output-cap.md`.
+- `claim-verification.md` — which source settles which kind of claim, the four ways a claim *you
+  author* (a why-comment, a guard, a count, a gap list) goes wrong, and how a probe's outcome gets
+  misread in both directions. Cited from `rules/knowledge-layering.md`, which keeps the discipline
+  and the three moments it fires at and delegates the per-shape checks here.
 - `code-review-path-scoped-rules.md` — why path-scoped `.claude/rules/**` are invisible to local
   `/code-review`, and what the orchestrate template's Step 4 does instead. Cited from `agents/code-reviewer.md`
   and `skills/write-adr/SKILL.md`.

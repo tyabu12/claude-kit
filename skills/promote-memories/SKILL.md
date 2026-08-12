@@ -8,10 +8,11 @@ argument-hint: "[focus cluster | (empty for full triage)]"
 # /promote-memories
 
 Run a memory triage round — **promote** durable lessons to rules and **retire** (delete/trim)
-SHIPPED trackers. The canonical procedure lives in this kit's `rules/knowledge-layering.md`
-(§ Where knowledge belongs, § Promotion & retirement, § Rule-writing self-check) — installed as
-`~/.claude/rules/knowledge-layering.md`; if present, read it first and let it win where the two
-disagree. If absent, the operational steps below stand alone.
+SHIPPED trackers. The split of authority: this kit's `rules/knowledge-layering.md` (§ Where
+knowledge belongs, § Promotion & retirement, § Verify before you lock it) is canonical for **what
+belongs where** and **when a memory must go**; the steps below are canonical for **how a round
+runs**. Installed as `~/.claude/rules/knowledge-layering.md` — if present, read it first and let it
+win on classification. If absent, the operational steps below stand alone.
 
 Typical trigger: memory count or total content size (see knowledge-layering § Promotion &
 retirement), or a user-requested periodic triage. `$ARGUMENTS` may name a focus cluster to skip
