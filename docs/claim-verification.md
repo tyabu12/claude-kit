@@ -76,6 +76,15 @@ lowercase filename back in, the grep fires and the next editor picks a dispositi
 mechanism working, not a regression. **Any doc quoting that example inherits the same
 constraint**, this one included.
 
+It still shipped with a blind spot, and the negative control is what missed it. `rg` skips hidden
+directories by default, so the form that landed never scanned `.claude/**` — the habitat the rule is
+mostly about, since that is where a project's rules, skills and agents live. The control had been
+planted at the repo root, somewhere the guard already reached, so it reddened without testing the
+question. **Scope a control to the claim's habitat, not just its pattern**: plant the fixture where
+the violation would really live. What surfaced it was running the detector against a consumer mirror
+— 2 hits by default, 3 with `--hidden` — which is also the cheapest general form of this check: run
+a shipped detector against a repo that is *not* the one it was written in.
+
 One shape has no in-session probe at all: a rules file created mid-session never injects in that
 session, so verify it from fresh subagent probes against a positive control. Mechanism, scope limits
 and re-runnable probes: `~/.claude/kit-docs/code-review-path-scoped-rules.md`.

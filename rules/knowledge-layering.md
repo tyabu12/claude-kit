@@ -61,10 +61,11 @@ shared repo needs to carry itself.
 (`#N`, `ADR-NNN`). Memory refs are fine only in never-committed places (`~/.claude/CLAUDE.md`,
 this file, conversational scratch).
 
-**Detect** — new code must not *add* hits (the *reframe* disposition below, not a "must return 0"):
+**Detect** — new code must not *add* hits (the *reframe* disposition below, not a "must return 0").
+`--hidden` is load-bearing: a project's rules live under `.claude/`, which `rg` skips by default.
 
 ```sh
-rg -n 'memory `[a-z_]+\.md`' --glob '!**/memory/**' --glob '!.git/**'
+rg -n --hidden 'memory `[a-z_]+\.md`' --glob '!**/memory/**' --glob '!.git/**'
 ```
 
 ## Verify before you lock it
