@@ -50,7 +50,8 @@ the full triage.
   are usually the entire value of the memory.
 - Strip per-user provenance and memory references (knowledge-layering.md § Anti-pattern) from any
   repo-tracked target. A repo-tracked rule must stay self-contained — never point it at the
-  maintainer's per-machine global rule.
+  maintainer's per-machine global rule. That section ships the detector; run it on the target repo
+  and confirm the draft adds no hit.
 - Update every mirror of the content in the same change.
 
 ## Step 3: Self-check (before handing off)

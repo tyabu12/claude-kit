@@ -172,6 +172,24 @@ first** and trim per-issue detail under pressure (`agents/code-reviewer.md`, "em
 in the body and leaves the header over-claiming. An agent that summarised last would give no such
 tell — the heuristic is a property of these agent definitions, not of the platform.
 
+Two shapes escape the heuristic, both observed in a consumer mirror and back-promoted here
+2026-08-13; the rule carries the one-line versions.
+
+- **No verdict at all.** The tail-first instruction is *conditional* — `agents/code-reviewer.md` and
+  `agents/critic.md` open it with "if you sense you are near the cap" / "approaching the output
+  cap". A run that exhausts before it senses anything returns only its opening sentence, leaving the
+  count-mismatch check no summary to work from. It showed up on broad **multi-axis verification**
+  prompts rather than on large diffs, which is why the caller-side remedy is to cut what the prompt
+  asks the agent to *verify* rather than how many files are in scope — and why asking for the verdict
+  in the first message helps: it makes the instruction unconditional. Treat the run as "re-run
+  narrower", not as a finding.
+- **A zero-issue report.** A summary claiming nothing has no count to under-deliver on, so a cut
+  landing right after it stays internally consistent and passes. **Not closed in the kit**: closing
+  it needs a structural check against a pinned Output Format — the caller confirming every mandatory
+  section of `agents/code-reviewer.md` § "Output Format" is present, not just the Verdict line.
+  That mirror closes it project-side for its unattended path, but the remedy is bound to a
+  project-owned output contract and does not promote.
+
 ## Why the split thresholds were held
 
 The rule used to present ~800 lines / ~8 files / ~5 axes (hard-split 1500 / 12 / 7) as *derived*

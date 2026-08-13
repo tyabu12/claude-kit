@@ -55,7 +55,13 @@ A hit is not silent: Claude Code auto-resumes the response, and what usually sur
 mid-report — only if every resume also overflows does the run fail outright. So the tell is a
 **count mismatch**: the summary claims more issues, axes, or findings than the body writes out, or
 names them with no evidence attached. Split and re-run. A report that is short *and internally
-consistent* is just short.
+consistent* is just short — except in two shapes that leave no count to mismatch:
+
+- **A zero-issue summary**: a cut landing right after it passes the check. No detector in the kit
+  closes this; treat it as an open gap.
+- **No verdict at all**: the run returns only its opening sentence. Seen on broad **multi-axis
+  verification** prompts, not on large diffs — re-run narrower by cutting what the prompt asks the
+  agent to *verify*, not how many files it sees, and ask for the verdict in the first message.
 
 ## Agent self-defense
 
