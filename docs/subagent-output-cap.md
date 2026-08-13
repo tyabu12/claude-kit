@@ -172,7 +172,7 @@ first** and trim per-issue detail under pressure (`agents/code-reviewer.md`, "em
 in the body and leaves the header over-claiming. An agent that summarised last would give no such
 tell — the heuristic is a property of these agent definitions, not of the platform.
 
-Two shapes escape the heuristic, both observed in the Pastura mirror and back-promoted here
+Two shapes escape the heuristic, both observed in a consumer mirror and back-promoted here
 2026-08-13; the rule carries the one-line versions.
 
 - **No verdict at all.** The tail-first instruction is *conditional* — `agents/code-reviewer.md` and
@@ -187,7 +187,7 @@ Two shapes escape the heuristic, both observed in the Pastura mirror and back-pr
   landing right after it stays internally consistent and passes. **Not closed in the kit**: closing
   it needs a structural check against a pinned Output Format — the caller confirming every mandatory
   section of `agents/code-reviewer.md` § "Output Format" is present, not just the Verdict line.
-  Pastura closes it project-side for its unattended path, but that remedy is bound to a
+  That mirror closes it project-side for its unattended path, but the remedy is bound to a
   project-owned output contract and does not promote.
 
 ## Why the split thresholds were held
