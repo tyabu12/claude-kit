@@ -57,9 +57,9 @@ the scripts), so the `claude-kit` plugin can ship without the hooks.
 
 **Docs** (`docs/`) — on-demand reference, deliberately outside `rules/` so it costs no per-turn
 context. `install.sh` symlinks it to `~/.claude/kit-docs/`, which Claude Code does **not** auto-load
-(verified 2026-08-12 on Claude Code 2.1.228; volatile, re-verify on upgrade — method and probe:
-`docs/code-review-path-scoped-rules.md`), so a citation resolves from any project and still costs
-nothing.
+(verified 2026-08-12 on Claude Code 2.1.228, re-run 2026-08-13 on 2.1.229; volatile, re-verify on
+upgrade — method and probe: `docs/code-review-path-scoped-rules.md`), so a citation resolves from any
+project and still costs nothing.
 
 **How to cite a doc depends on how far the citing file travels** — a repo-relative path inside a
 machine-wide file resolves against *whatever project happens to be open* and silently finds nothing:
@@ -78,10 +78,12 @@ the path as depth-only.
 - `claim-verification.md` — which source settles which kind of claim, the four ways a claim *you
   author* (a why-comment, a guard, a count, a gap list) goes wrong, and how a probe's outcome gets
   misread in both directions. Cited from `rules/knowledge-layering.md`, which keeps the discipline
-  and the three moments it fires at, and delegates the per-shape checks here.
+  and the three moments it fires at, and delegates the per-shape checks here; and from the
+  suppression section below.
 - `code-review-path-scoped-rules.md` — why path-scoped `.claude/rules/**` are invisible to local
-  `/code-review`, and what the orchestrate template's Step 4 does instead. Cited from `agents/code-reviewer.md`
-  and `skills/write-adr/SKILL.md`.
+  `/code-review`, what the orchestrate template's Step 4 does instead, and the `InstructionsLoaded`
+  probe used for both the `kit-docs` and `claudeMdExcludes` measurements. Cited from
+  `agents/code-reviewer.md`, `skills/write-adr/SKILL.md`, and the suppression section below.
 - `subagent-output-cap.md` — how the per-model output caps in `rules/subagent-usage.md` were
   obtained (catalog extraction plus four controls), and how to re-measure them in about two seconds
   after a Claude Code upgrade; plus why the split thresholds are not cap-derived. Cited from
@@ -161,6 +163,55 @@ falling back to inline defaults — but for full behavior, co-install the
 rules with `./install.sh` (or copy `rules/*.md` into your own
 `~/.claude/rules/` by hand — and `docs/` to `~/.claude/kit-docs/`, or the
 `~/.claude/kit-docs/…` citations inside those rules will not resolve).
+
+## Suppressing these rules in a project that keeps its own copy
+
+`rules/*.md` are always-loaded — **10,868 B** (`cat rules/*.md | wc -c`, 2026-08-13) paid on every
+turn of every session on the machine. A consuming project that has already copied them into its own
+`.claude/rules/` pays for both copies. `claudeMdExcludes` drops the kit's, leaving the project's
+alone:
+
+```jsonc
+// <project>/.claude/settings.local.json
+{
+  "claudeMdExcludes": [
+    "/abs/path/to/claude-kit/rules/knowledge-layering.md",
+    "/abs/path/to/claude-kit/rules/subagent-usage.md",
+    "/abs/path/to/claude-kit/rules/context-budget.md"
+  ]
+}
+```
+
+Generate that block for your machine (`readlink -f` turns the `~/.claude/rules/` symlinks into the
+paths the matcher wants), then **delete every line this project has no copy of** — the loop emits the
+whole kit, plus any personal rules of your own on a hand-copy install:
+
+```sh
+for f in ~/.claude/rules/*.md; do readlink -f "$f"; done | jq -R . | jq -s '{claudeMdExcludes: .}'
+```
+
+What the procedure depends on:
+
+- **Only where the project keeps its own copy.** With no local copy the kit rules *are* the baseline,
+  so excluding them deletes it rather than slimming it — pasting the generated block wholesale is
+  exactly that mistake. That case is what the always-loaded files are kept dense for; it has no
+  suppression answer.
+- **Enumerate full paths; do not glob.** A `…/claude-kit/rules/*.md` glob does match (measured), but
+  it also swallows rules added to the kit *later* — ones this project has no copy of, and so would be
+  suppressing to nothing. The enumeration degrades the safe way instead: a new kit rule simply shows
+  up until someone adds it deliberately.
+- **Write an absolute path. A literal `~` silently matches nothing.** The matcher does no tilde
+  expansion, so `"~/.claude/rules/subagent-usage.md"` is a no-op — no error, no warning, the rule
+  just keeps loading. Prefer the **symlink-resolved** path the generator above emits; per-form
+  results (including the expanded home path) are in `docs/code-review-path-scoped-rules.md`.
+- **Per-machine, never committed.** The paths are absolute and machine-specific, and
+  `settings.local.json` is gitignored. The kit can carry the procedure and nothing else.
+
+Verify it took effect with an `InstructionsLoaded` hook (matcher `session_start`) logging `file_path`
+— a control arm with no `claudeMdExcludes` must show the three kit paths, and a bogus-path arm must
+leave all three loaded, or the instrument is proving nothing (`docs/claim-verification.md`; the same
+hook, wired up, plus the per-form table, is in `docs/code-review-path-scoped-rules.md`). Re-verify on
+a Claude Code upgrade; last measured **2026-08-13 on 2.1.228 and 2.1.229**.
 
 ## Scrubbing / privacy
 
