@@ -67,15 +67,14 @@ reader is the one who finds it.
 A detector a rule *ships* is the sharpest case, because it runs against the file that defines it.
 The `rg` in `rules/knowledge-layering.md` § "Anti-pattern: memory refs in repo-tracked files"
 returned exactly one hit on the day it landed: that section's own prose example of the banned form,
-which is the *form being defined*, not a reference. The three dispositions are not equivalent in
-cost here — an inline carve-out is the most faithful reading of the rule but adds a line to an
-**always-loaded** file *and* is itself a `file:line` assertion that re-breaks whenever the line
-moves, while narrowing the pattern to dodge one example is brittle by construction. The prose was
-rewritten to spell the example with a `<name>` placeholder instead, which is what it always was, so
-the detector goes to zero without being weakened. If a later edit writes a concrete lowercase
-filename back in, the grep fires and the next editor picks a disposition again — the mechanism
-working, not a regression. **Any doc quoting that example inherits the same constraint**, this one
-included.
+which is the *form being defined*, not a reference. The three dispositions are not equally cheap
+here — an inline carve-out is the rule's own remedy but adds a line to an **always-loaded** file
+*and* is itself a `file:line` assertion that re-breaks whenever the line moves, and narrowing the
+pattern to dodge one example is brittle by construction. Rewriting the example with a `<name>`
+placeholder takes the detector to zero without weakening it; if a later edit writes a concrete
+lowercase filename back in, the grep fires and the next editor picks a disposition again — the
+mechanism working, not a regression. **Any doc quoting that example inherits the same
+constraint**, this one included.
 
 One shape has no in-session probe at all: a rules file created mid-session never injects in that
 session, so verify it from fresh subagent probes against a positive control. Mechanism, scope limits
