@@ -189,6 +189,11 @@ into the paths the matcher wants:
 for f in ~/.claude/rules/*.md; do readlink -f "$f"; done | jq -R . | jq -s '{claudeMdExcludes: .}'
 ```
 
+**Then delete every line this project does not have its own copy of.** The loop emits every rule in
+`~/.claude/rules/` — which is the whole kit, plus any personal rules of your own if you installed by
+hand-copy rather than `install.sh`. Pasting it wholesale is exactly the baseline deletion the first
+bullet below warns about.
+
 Four things this procedure depends on:
 
 - **Only where the project keeps its own copy.** With no local copy the kit rules *are* the baseline,
@@ -198,13 +203,12 @@ Four things this procedure depends on:
   it also swallows rules added to the kit *later* — ones this project has no copy of, and so would be
   suppressing to nothing. The enumeration degrades the safe way instead: a new kit rule simply shows
   up until someone adds it deliberately.
-- **Give the symlink-resolved path** (the checkout's own `…/claude-kit/rules/x.md`), not
-  `~/.claude/rules/x.md`. Both forms match on Claude Code **2.1.229**, but the `~/.claude/` form was
-  measured *ineffective*
-  on **2.1.228** — so it is version-dependent and the resolved form is the one that has held on every
-  version measured. Both stamps are recorded in #24; the 2.1.228 run was not repeated on this
-  machine, so whether that difference is a Claude Code change or a flaw in the earlier measurement
-  **was not isolated**.
+- **Write an absolute path. A literal `~` silently matches nothing.** The matcher does no tilde
+  expansion, so `"~/.claude/rules/subagent-usage.md"` is a no-op — no error, no warning, the rule
+  just keeps loading. Measured on both 2.1.228 and 2.1.229. Prefer the **symlink-resolved** path
+  (`…/claude-kit/rules/x.md`, what the generator above emits); the expanded home path
+  (`<your-home>/.claude/rules/x.md`, tilde already spelled out) also works, but only because the
+  matcher realpath-resolves the pattern — something the resolved form does not have to rely on.
 - **Per-machine, never committed.** The paths are absolute and machine-specific, and
   `settings.local.json` is gitignored. The kit can carry the procedure and nothing else.
 
@@ -212,7 +216,8 @@ Verify it took effect with an `InstructionsLoaded` hook (matcher `session_start`
 — a control arm with no `claudeMdExcludes` must show the three kit paths, and a bogus-path arm must
 leave all three loaded, or the instrument is proving nothing (`docs/claim-verification.md`; the same
 hook, wired up, is in `docs/code-review-path-scoped-rules.md`). Re-verify on a Claude Code upgrade;
-last measured **2026-08-13 on 2.1.229**.
+last measured **2026-08-13 on 2.1.228 and 2.1.229**, which is also where the per-form table in that
+doc comes from.
 
 ## Scrubbing / privacy
 
