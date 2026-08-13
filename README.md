@@ -166,10 +166,10 @@ rules with `./install.sh` (or copy `rules/*.md` into your own
 
 ## Suppressing these rules in a project that keeps its own copy
 
-`rules/*.md` are always-loaded — **10,868 B** paid on every turn of every session on the machine
-(`knowledge-layering.md` 5,600 / `subagent-usage.md` 3,225 / `context-budget.md` 2,043; measured
-2026-08-13). A consuming project that has already copied them into its own `.claude/rules/` pays for
-both copies. `claudeMdExcludes` drops the kit's, leaving the project's alone:
+`rules/*.md` are always-loaded — **10,868 B** (`cat rules/*.md | wc -c`, 2026-08-13) paid on every
+turn of every session on the machine. A consuming project that has already copied them into its own
+`.claude/rules/` pays for both copies. `claudeMdExcludes` drops the kit's, leaving the project's
+alone:
 
 ```jsonc
 // <project>/.claude/settings.local.json
@@ -182,42 +182,36 @@ both copies. `claudeMdExcludes` drops the kit's, leaving the project's alone:
 }
 ```
 
-Generate that block for your machine — `readlink -f` is what turns the `~/.claude/rules/` symlinks
-into the paths the matcher wants:
+Generate that block for your machine (`readlink -f` turns the `~/.claude/rules/` symlinks into the
+paths the matcher wants), then **delete every line this project has no copy of** — the loop emits the
+whole kit, plus any personal rules of your own on a hand-copy install:
 
 ```sh
 for f in ~/.claude/rules/*.md; do readlink -f "$f"; done | jq -R . | jq -s '{claudeMdExcludes: .}'
 ```
 
-**Then delete every line this project does not have its own copy of.** The loop emits every rule in
-`~/.claude/rules/` — which is the whole kit, plus any personal rules of your own if you installed by
-hand-copy rather than `install.sh`. Pasting it wholesale is exactly the baseline deletion the first
-bullet below warns about.
-
-Four things this procedure depends on:
+What the procedure depends on:
 
 - **Only where the project keeps its own copy.** With no local copy the kit rules *are* the baseline,
-  so excluding them deletes it rather than slimming it. That case is what the always-loaded files are
-  kept dense for — it has no suppression answer.
+  so excluding them deletes it rather than slimming it — pasting the generated block wholesale is
+  exactly that mistake. That case is what the always-loaded files are kept dense for; it has no
+  suppression answer.
 - **Enumerate full paths; do not glob.** A `…/claude-kit/rules/*.md` glob does match (measured), but
   it also swallows rules added to the kit *later* — ones this project has no copy of, and so would be
   suppressing to nothing. The enumeration degrades the safe way instead: a new kit rule simply shows
   up until someone adds it deliberately.
 - **Write an absolute path. A literal `~` silently matches nothing.** The matcher does no tilde
   expansion, so `"~/.claude/rules/subagent-usage.md"` is a no-op — no error, no warning, the rule
-  just keeps loading. Measured on both 2.1.228 and 2.1.229. Prefer the **symlink-resolved** path
-  (`…/claude-kit/rules/x.md`, what the generator above emits); the expanded home path
-  (`<your-home>/.claude/rules/x.md`, tilde already spelled out) also works, but only because the
-  matcher realpath-resolves the pattern — something the resolved form does not have to rely on.
+  just keeps loading. Prefer the **symlink-resolved** path the generator above emits; per-form
+  results (including the expanded home path) are in `docs/code-review-path-scoped-rules.md`.
 - **Per-machine, never committed.** The paths are absolute and machine-specific, and
   `settings.local.json` is gitignored. The kit can carry the procedure and nothing else.
 
 Verify it took effect with an `InstructionsLoaded` hook (matcher `session_start`) logging `file_path`
 — a control arm with no `claudeMdExcludes` must show the three kit paths, and a bogus-path arm must
 leave all three loaded, or the instrument is proving nothing (`docs/claim-verification.md`; the same
-hook, wired up, is in `docs/code-review-path-scoped-rules.md`). Re-verify on a Claude Code upgrade;
-last measured **2026-08-13 on 2.1.228 and 2.1.229**, which is also where the per-form table in that
-doc comes from.
+hook, wired up, plus the per-form table, is in `docs/code-review-path-scoped-rules.md`). Re-verify on
+a Claude Code upgrade; last measured **2026-08-13 on 2.1.228 and 2.1.229**.
 
 ## Scrubbing / privacy
 

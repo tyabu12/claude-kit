@@ -85,9 +85,9 @@ project): identical list, still nothing under `kit-docs`.
 
 Note `file_path` is reported **post-symlink-resolution** (the kit paths, not the `~/.claude/rules/…`
 symlinks). That was originally read as the reason `claudeMdExcludes` patterns *must* be written
-against the resolved path — **that inference does not hold**, and the measurement it rested on was
-wrong. Re-run 2026-08-13 against **both** the 2.1.228 and 2.1.229 binaries (both still on disk under
-`~/.local/share/claude/versions/`), same instrument, with a control and a bogus-path arm each:
+against the resolved path — **that inference does not hold**. Re-run 2026-08-13 against **both** the
+2.1.228 and 2.1.229 binaries (both still on disk under `~/.local/share/claude/versions/`), same
+instrument, with a control and a bogus-path arm each:
 
 | pattern form | 2.1.228 | 2.1.229 |
 |---|---|---|
@@ -98,11 +98,10 @@ wrong. Re-run 2026-08-13 against **both** the 2.1.228 and 2.1.229 binaries (both
 No version dependence in any form tested. The real axis is **tilde expansion**: the matcher performs
 none, so a literal `~` pattern matches nothing and fails silently. The expanded home path works
 because the matcher realpath-resolves the pattern itself — hook reporting and exclusion matching are
-separate resolution paths that happen to agree. (The realpath step is read from the bundle, not
-behaviourally isolated; the table above is measured.)
-
-The likely origin of the original claim is a literal `~` in the failing arm, misattributed to
-"symlink paths don't work". Prefer the resolved form anyway — it needs no resolution step to match.
+separate resolution paths that happen to agree (that realpath step is read from the bundle, not
+behaviourally isolated; the table above is measured). The original claim most likely came from a
+literal `~` in the failing arm, misattributed to "symlink paths don't work". Prefer the resolved form
+anyway — it needs no resolution step to match.
 
 Separately verified the same day, both directions of the citation form: the `Read` tool expands `~`
 from the main session **and** from inside a subagent (a subagent handed the literal string
