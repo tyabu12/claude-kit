@@ -61,10 +61,12 @@ shared repo needs to carry itself.
 (`#N`, `ADR-NNN`). Memory refs are fine only in never-committed places (`~/.claude/CLAUDE.md`,
 this file, conversational scratch).
 
-**Detect** — new code must not *add* hits (the *reframe* disposition below, not a "must return 0"):
+**Detect** — new code must not *add* hits (the *reframe* disposition below, not a "must return 0").
+A recursive grep silently skips dot-dirs and tracked-but-ignored files — enumerate, don't recurse:
 
 ```sh
-rg -n 'memory `[a-z_]+\.md`' --glob '!**/memory/**' --glob '!.git/**'
+git ls-files -z --cached --others --exclude-standard \
+  | xargs -0 grep -nHE 'memory `[a-z_]+\.md`'
 ```
 
 ## Verify before you lock it
