@@ -48,7 +48,7 @@ deletion, so it belongs on a checklist. Dispositions, commands and the approval 
 
 ## Anti-pattern: memory refs in repo-tracked files
 
-Per-user memory is **per-machine**. A reference of the form `` memory `foo.md` `` inside a
+Per-user memory is **per-machine**. A reference of the form `` memory `<name>.md` `` inside a
 **repo-tracked** file (a project's `CLAUDE.md`, an ADR, a source comment) is a **dead link** for
 every other contributor and every other machine.
 
@@ -60,6 +60,12 @@ shared repo needs to carry itself.
 **Apply**: for rationale in a repo-tracked file, use an inline summary + a durable pointer
 (`#N`, `ADR-NNN`). Memory refs are fine only in never-committed places (`~/.claude/CLAUDE.md`,
 this file, conversational scratch).
+
+**Detect** — new code must not *add* hits (the *reframe* disposition below, not a "must return 0"):
+
+```sh
+rg -n 'memory `[a-z_]+\.md`' --glob '!**/memory/**' --glob '!.git/**'
+```
 
 ## Verify before you lock it
 
