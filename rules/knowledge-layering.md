@@ -62,10 +62,12 @@ shared repo needs to carry itself.
 this file, conversational scratch).
 
 **Detect** — new code must not *add* hits (the *reframe* disposition below, not a "must return 0").
-`--hidden` is load-bearing: a project's rules live under `.claude/`, which `rg` skips by default.
+Enumerate with `git ls-files`, never a recursive grep: that walk silently skips dot-dirs and
+tracked-but-ignored files.
 
 ```sh
-rg -n --hidden 'memory `[a-z_]+\.md`' --glob '!**/memory/**' --glob '!.git/**'
+git ls-files -z --cached --others --exclude-standard \
+  | xargs -0 grep -nHE 'memory `[a-z_]+\.md`'
 ```
 
 ## Verify before you lock it

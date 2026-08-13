@@ -4,6 +4,8 @@ memory/
 settings.json
 settings.local.json
 settings*.json
+# parked worktrees — otherwise `git ls-files --others` enumerates them as duplicate trees
+.claude/worktrees/
 # OS/editor noise
 .DS_Store
 __pycache__/
