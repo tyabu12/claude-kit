@@ -80,9 +80,17 @@ via `claude -p "ok" --settings <file>` with the symlink in place. The event repo
 ```
 
 Nothing under `kit-docs`. Those four files *are* the positive control: a probe that listed nothing
-at all would be measuring nothing. Note `file_path` is reported **post-symlink-resolution** (the kit
-paths, not the `~/.claude/rules/…` symlinks) — which is also why `claudeMdExcludes` patterns must be
-written against the resolved path.
+at all would be measuring nothing. **Re-run 2026-08-13 on 2.1.229** (same instrument, cwd outside any
+project): identical list, still nothing under `kit-docs`.
+
+Note `file_path` is reported **post-symlink-resolution** (the kit paths, not the `~/.claude/rules/…`
+symlinks). That was originally read as the reason `claudeMdExcludes` patterns *must* be written
+against the resolved path — **that inference does not hold**. On 2.1.229 both forms match: excluding
+the single symlink path `~/.claude/rules/subagent-usage.md` dropped exactly that file and left the
+other two loaded, and a bogus-path arm left all three loaded. On 2.1.228 the symlink form was
+measured ineffective (#24). So hook reporting and exclusion matching are **separate** resolution
+paths, and the resolved form is preferred for version-robustness, not because the symlink form
+cannot work. The 2.1.228 run was not repeated, so the cause of the difference was not isolated.
 
 Separately verified the same day, both directions of the citation form: the `Read` tool expands `~`
 from the main session **and** from inside a subagent (a subagent handed the literal string
