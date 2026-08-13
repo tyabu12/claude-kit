@@ -76,26 +76,23 @@ lowercase filename back in, the grep fires and the next editor picks a dispositi
 mechanism working, not a regression. **Any doc quoting that example inherits the same
 constraint**, this one included.
 
-It still shipped with a blind spot, and the negative control is what missed it. The first form
-recursed with `rg`, which skips hidden directories by default, so it never scanned `.claude/**` —
-where a project's own rules, skills and agents live. The control had been planted at the repo root,
-somewhere the guard already reached, so it reddened without testing the question. **Scope a control
-to the claim's habitat, not just its pattern.**
+It still shipped with a blind spot, and the negative control is what missed it: the first form
+recursed with `rg`, which skips hidden directories, so `.claude/**` — rules, skills, agents — went
+unscanned, and the control sat at the repo root, inside the guard's existing reach, reddening
+without testing the question. **Scope a control to the claim's habitat, not just its pattern.**
 
-The deeper error was the *file set*. A recursive grep answers "which files are lying here"; the rule
-asks "which files are repo-tracked", and the two diverge in both directions — a tracked file under an
-ignored directory is missed, never-committed scratch is falsely flagged. Adding `--hidden` closed one
-instance and left the class open. The fix was to stop recursing and enumerate with
-`git ls-files --cached --others --exclude-standard`, which `scripts/scrub-check.sh` in this repo
-already used for the same question; two mechanisms answering "which files count?" differently is
+The deeper error was the *file set*: a recursive grep answers "which files lie here", the rule asks
+"which are repo-tracked", and the two diverge both ways — a tracked file under an ignored directory
+is missed, never-committed scratch is falsely flagged. `--hidden` closes that instance and leaves
+the class open; the fix was to enumerate with `git ls-files --cached --others --exclude-standard`,
+as `scripts/scrub-check.sh` already did — two mechanisms answering the same question differently is
 drift waiting to happen. **When a detector's file set is not the claim's file set, no flag fixes it.**
 
-What surfaced it was running the detector against a repo it was not written in — the cheapest general
-form of this check, since the authoring repo is exactly where a self-referential detector is least
-able to fail. The extra hit there was that repo's own copy of this rule's prose example, still
-spelling a concrete filename instead of the `<name>` placeholder: a consumer reconciling the detector
-has to import the placeholder rewrite along with it, or its own rule file becomes a reported
-violation. Sequence and measurements: #30, #32.
+It surfaced only when the detector ran against a repo it was not written in — the cheapest general
+form of this check, since the authoring repo is where a self-referential detector is least able to
+fail. The hit there was that repo's copy of the prose example, still spelling a concrete filename:
+the constraint above reaches consumer mirrors, which must import the placeholder rewrite along with
+the detector, or report their own rule file as a violation. Sequence and measurements: #30, #32.
 
 One shape has no in-session probe at all: a rules file created mid-session never injects in that
 session, so verify it from fresh subagent probes against a positive control. Mechanism, scope limits

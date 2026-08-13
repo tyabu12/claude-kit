@@ -62,8 +62,7 @@ shared repo needs to carry itself.
 this file, conversational scratch).
 
 **Detect** — new code must not *add* hits (the *reframe* disposition below, not a "must return 0").
-Enumerate with `git ls-files`, never a recursive grep: that walk silently skips dot-dirs and
-tracked-but-ignored files.
+A recursive grep silently skips dot-dirs and tracked-but-ignored files — enumerate, don't recurse:
 
 ```sh
 git ls-files -z --cached --others --exclude-standard \
