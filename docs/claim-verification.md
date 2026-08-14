@@ -29,8 +29,7 @@ Authored at implementation *or review-fix* time, and executed by nobody. Four sh
 expressible as a `Verify by` lookup:
 
 - **Why-comment on a mechanism** → delete the mechanism and run the tests. Green means the claim
-  is false, or the tests never covered it. Its *destination* is a separate question — see
-  § "A comment written for the reviewer" below.
+  is false, or the tests never covered it. Its *destination* is a separate question (§ below).
 - **A detector / guard / gate** → construct the thing it claims to catch and confirm it fires. A
   guard's success case proves nothing; only a negative control does. Scope it to the claim it
   defends: a check narrower than that claim (a files-only loop behind a files-and-directories
@@ -52,39 +51,37 @@ expressible as a `Verify by` lookup:
 ## A comment written for the reviewer
 
 Backs `rules/knowledge-layering.md` § "Anti-pattern: a comment written for the reviewer". A comment
-whose only content is what *this* change did is addressed to a reviewer, who reads the PR body
-anyway, rather than to the next editor, who does not.
+whose only content is what *this* change did addresses the reviewer, not the next editor.
 
 **Do not key the rule on wording.** The tempting discriminator is tense — "must stay identical to X"
-constrains, "was left identical to X" reports — and it was measured over 169 comment blocks from two
-model generations. It needed to decide 17 of them and got 4 wrong, because:
+constrains, "was left identical to X" reports. Measured over 169 comment blocks from two model
+generations, it had to decide 17 and got 4 wrong, because:
 
 - It reads the sentence's grammatical head, not its payload. "…lives in `LeafIcon.swift`, which owns
-  the default this file used to apply" is a stale move record with a present-tense main clause;
-  "…live in `Foo+Bar.swift` to keep this file under the length budget" is a live navigational
-  breadcrumb with identical grammar.
-- It cannot see duplication at all — a measured figure copy-pasted to a second package is the defect,
-  and every word of it is a legitimate present-tense fact.
-- Backward-looking clauses are frequently load-bearing: a forward rule reading "any key added *after
-  that* bumps the version" is unparseable once the history clause it refers to is gone.
+  the default this file used to apply" is a stale move record; "…live in `Foo+Bar.swift` to keep
+  this file under the length budget" is a live navigational breadcrumb — identical grammar.
+- It cannot see duplication: a measured figure copy-pasted to a second package is the defect, and
+  every word of it is a legitimate present-tense fact.
+- Backward-looking clauses are frequently load-bearing — a forward rule reading "any key added
+  *after that* bumps the version" is unparseable once the history clause is gone.
 
-The unit of deletion is the **block**, so a per-clause flag on a block-level artifact misfires — in
-that corpus, on ~7% of all load-bearing blocks, and systematically on the longest ones, which are
-the comments whose loss causes the mistakes the convention exists to prevent.
+The unit of deletion is the **block**, so a per-clause flag misfires — on ~7% of load-bearing blocks
+in that corpus, and systematically on the longest, whose loss causes exactly the mistakes the
+convention prevents.
 
 **The form that survived the negative control**: flag only when *every* sentence in the block is a
-backward-looking report, or when the block restates a figure that has a canonical site elsewhere. On
-the same corpus that caught every true instance with no false positives.
+backward-looking report, or when the block restates a figure with a canonical site elsewhere — every
+true instance caught, no false positives.
 
 The duplicated-figure shape needs a **repo-side grep**, not a review agent: a review that splits a
 large diff by file or axis gives no shard sight of all the sites, so the property is invisible by
-construction. Frame the grep as *new code must not add hits*, with the existing count recorded as an
-acknowledged baseline — the *reframe* disposition, not a must-return-zero.
+construction. Frame it as *new code must not add hits*, existing count recorded as an acknowledged
+baseline — the *reframe* disposition, not a must-return-zero.
 
-**Length is the commoner defect.** Across the same corpus one generation wrote ~45% more comment
-lines per block, and ~50% more blocks per commit, at an unchanged A/B/C/D distribution — the same
-content, longer. That is compressible with no information loss, and it is a cheaper and far safer
-correction than any rule that proposes deleting a category of content.
+**Length is the commoner defect.** In that corpus one generation wrote ~45% more comment lines per
+block and ~50% more blocks per commit at an unchanged A/B/C/D distribution — same content, longer,
+so compressible with no information loss. A cheaper and safer correction than deleting a category of
+content.
 
 ## Reading a probe's outcome
 
