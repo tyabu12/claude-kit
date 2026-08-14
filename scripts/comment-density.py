@@ -8,6 +8,10 @@ trailer. That covers the volume half of the section's success measure; the
 "unchanged A/B/C/D distribution" half needs a hand pass — this tool classifies
 nothing.
 
+Pin the range to explicit SHAs rather than `HEAD~N..HEAD`: a sliding window
+moves the cohorts under you, and a figure quoted from one is not reproducible
+by whoever reads it next.
+
 **There is deliberately no gate.** Three designs were calibrated against a
 generation known to be concise, and all three died: per-commit on either of two
 thresholds (catching 80-96% of the verbose cohort cost 52-79% false flags),
@@ -130,6 +134,13 @@ def collect(repo, rev_range, include_tests, min_added):
             "comment": comment,
             "ratio": comment / (code + comment),
             "blocks": len(blocks),
+            # Normalized against the code the commit actually added. Raw
+            # blocks-per-commit tracks commit size, and cohorts do not share
+            # one: reading it as a comment-habit difference credited a cohort
+            # for writing bigger commits, and ranked the most concise model as
+            # the most verbose. Report density; keep the raw count out of the
+            # summary so it cannot be compared across cohorts by accident.
+            "density": len(blocks) / code * 100 if code else 0.0,
             "per_block": statistics.mean(blocks) if blocks else 0.0,
             "max_block": max(blocks) if blocks else 0,
         })
@@ -142,7 +153,8 @@ def summarize(label, rows):
         return
     med = lambda k: statistics.median(r[k] for r in rows)
     print(f"{label:<24} n={len(rows):<4} ratio={med('ratio'):.1%}  "
-          f"lines/block={med('per_block'):.1f}  blocks/commit={med('blocks'):.0f}")
+          f"lines/block={med('per_block'):.2f}  "
+          f"blocks/100 code lines={med('density'):.1f}")
 
 
 SELF_TEST = [
@@ -194,10 +206,11 @@ def main():
 
     rows = collect(a.repo, a.range, a.include_tests, a.min_added)
     if a.dump:
-        print("sha\tmodel\tratio\tblocks\tper_block\tmax_block")
+        print("sha\tmodel\tratio\tcode\tblocks\tdensity\tper_block\tmax_block")
         for r in rows:
             print(f"{r['sha']}\t{model_of(a.repo, r['sha'])}\t{r['ratio']:.4f}\t"
-                  f"{r['blocks']}\t{r['per_block']:.2f}\t{r['max_block']}")
+                  f"{r['code']}\t{r['blocks']}\t{r['density']:.2f}\t"
+                  f"{r['per_block']:.2f}\t{r['max_block']}")
         return 0
     if not a.by_model:
         summarize("all", rows)

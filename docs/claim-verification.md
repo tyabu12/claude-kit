@@ -83,16 +83,20 @@ The duplicated-figure shape needs a **repo-side grep**, not a review agent — a
 or axis gives no shard sight of all the sites. Frame it as *new code must not add hits*, existing
 count as an acknowledged baseline (the *reframe* disposition).
 
-**Length is the commoner defect.** In that corpus one generation wrote ~45% more comment lines per
-block and ~47% more blocks per commit at an unchanged A/B/C/D distribution — same content, longer.
-Compressing it loses nothing, and is safer than any rule that deletes a category of content.
+**Volume is the commoner defect, and the first pass over-stated it.** That pass reported ~45% more
+comment lines per block and ~47% more blocks per commit at an unchanged A/B/C/D distribution (#35).
+Neither figure survived re-measurement: the per-commit count is the raw cross-cohort count this
+section ends by retracting, and the per-block excess came down to +32%. What holds is below.
+Compressing is still the safe remedy — it cannot delete a category of content the way moving a block
+can.
 
 **The rewrite-once instruction the rule carries is a hypothesis, not a settled mechanism.** A
 structural instruction is the only thing observed to shorten a draft (25%, against 14% for "compress
 this"), but it worked as a *live* instruction, while the always-loaded rule sat in the same context
 and did not fire — three verbose drafts were written under it. So ship it and re-measure with
-`scripts/comment-density.py`: blocks per commit should fall toward the concise cohort's 16, on that
-tool's counting rule. The other half of the measure — an unchanged A/B/C/D distribution — the tool
+`scripts/comment-density.py`: blocks per 100 added code lines should fall toward the concise
+cohort's 16.0, on that tool's counting rule and over a pinned range. Do not read the raw per-commit
+count — see below. The other half of the measure — an unchanged A/B/C/D distribution — the tool
 cannot see, so it still needs a hand pass. If neither moves, the mechanism belongs at review time
 and the always-loaded lines come back out.
 
@@ -105,15 +109,35 @@ lines**, and a ≥12-line trigger fires on 7.8% of concise blocks against 11.4% 
 gate at any of those rates teaches its reader to ignore it, so the tool ships as cohort measurement
 only.
 
-What separates the cohorts is **count, not length**: 16 → 26 blocks per commit (+63%) against 4.3 →
-5.9 lines per block (+37%), over a shared median. The verbose generation writes more comments rather
-than much longer ones, so a length-keyed mechanism aims at the smaller half of its own defect —
-hence the rule leading with the count. Fable 5 sits below both cohorts (3.4 lines per block, 32.1%
-comment share): the axis is the model, not recency.
+**Lead with the two measures that carry their own denominator.** Comment share of added lines runs
+43.0% → 55.0%, and lines per block 4.31 → 5.68 (+32%) over a median of 3.0 in both — each a ratio by
+construction. That buys immunity to cohort *size* only, not to what the cohorts were working on —
+the confound that broke the first correction, and one a pinned range does not touch. Block *count*
+carries neither: the same two cohorts differ by +31% per 100 added code lines,
++10% per file touched, and +63% per commit. Both dimensions rise, neither dominates, and a mechanism
+keyed to one alone reaches about half the excess.
+
+The claim this replaces — "count, not length", read off that +63% — was **a raw per-unit count
+compared across cohorts whose unit is not the same size**. The verbose cohort's commits add 108 →
+179 code lines, so blocks per commit banked that as a comment habit. The tell needed none of the
+above: Fable 5 (n=16, so read it as a direction, not a magnitude) is the most concise cohort on
+every self-normalizing measure and the *least* concise
+on both raw ones (24 blocks per commit against 16, 3.57 per file against 3.08 — it writes 39.8 lines
+per file against 22.4). A metric that ranks the most concise model as the most verbose is measuring
+its denominator. This is the third correction to this diagnosis, and the third of one shape — a
+comparison whose denominator went unchecked: first the topic, then blocks merged across hunks, now
+commit size. Read the shape wider than the word: what actually recurs is a covariate that differs
+between cohorts and was never checked, and a denominator is only the kind that is easy to name.
+
+Fable 5 is below both cohorts on every normalized measure (14.1 blocks per 100 lines, 3.35 lines per
+block, 32.1% comment share, median block 2.0): the axis is the model, not recency.
 
 Corpus, stratification (the commits' `Co-Authored-By` trailer), and the A/B/C/D and +45%/+47%
-figures: #35. The calibration above is this session's and is *not* in that issue; it runs on the
-tool's own counting rule, moves if `commit_stats` changes, and is re-runnable via `--dump`.
+figures: #35. Every calibration above is this session's, not that issue's; it is measured over
+`1f8836ef..9a40565a`, on the tool's own counting rule, and is re-runnable via `--dump`. A further 72
+eligible commits carry no model trailer and sit in none of the cohorts. Pin a range
+before quoting from it — the first pass used `HEAD~400..HEAD`, which moved the cohorts between two
+runs on the same day.
 
 ## Reading a probe's outcome
 
