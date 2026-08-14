@@ -76,12 +76,12 @@ sentence states a durable claim — only provenance, the diff's own argument, a 
 site already states — belongs in the PR body or an ADR. **When flagging that**, move the whole
 block, never a clause: a backward-looking sentence is routinely what makes the forward rule
 intelligible. But expect **volume**, not misfiling, to be the defect you actually find; it tracks
-the model, not recency, and its remedy is rewriting shorter — a different act from deleting. When
-*writing*, watch the count before the length: the measured excess is ~60% more blocks against ~35%
-longer ones, so the block not worth writing is commoner than the block worth shortening. Past ~10
-lines (the top tenth even for the concise baseline) rewrite once at half length, and **the rewrite
-wins** unless it dropped a forward-looking fact. False-flag rates, the calibration that refuted a
-commit-level gate, why the duplicated-figure shape needs a repo-side grep:
+the model, not recency, and its remedy is rewriting shorter — a different act from deleting. The
+excess is spread evenly over how many blocks you write and how long each is (~+31% and ~+32% against
+a concise baseline), so watch both: drop the block that states nothing the next editor needs, and
+past ~10 lines (the top tenth even for that baseline) rewrite once at half length, **the rewrite
+winning** unless it dropped a forward-looking fact. False-flag rates, the calibration that refuted
+three gate designs, why the duplicated-figure shape needs a repo-side grep:
 `~/.claude/kit-docs/claim-verification.md` § "A comment written for the reviewer".
 
 ## Verify before you lock it
