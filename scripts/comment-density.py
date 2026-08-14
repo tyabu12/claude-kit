@@ -26,7 +26,8 @@ a full-line `//` inside a multiline string is counted, pushing it up — but the
 first is far commoner, so it predominantly under-reports.
 
 Usage:
-  comment-density.py <range> [--repo DIR] [--by-model] [--min-added N]
+  comment-density.py <range> [--repo DIR] [--by-model] [--dump] [--min-added N]
+  comment-density.py --self-test
 """
 
 import argparse
@@ -66,8 +67,17 @@ def git(repo, *args):
 
 
 def commit_stats(repo, sha, include_tests):
-    """Return (code_lines, comment_lines, block_sizes) over the commit's added lines."""
     diff = git(repo, "show", "--unified=0", "--format=", "--no-color", sha)
+    return parse_added(diff, include_tests)
+
+
+def parse_added(diff, include_tests):
+    """Return (code_lines, comment_lines, block_sizes) over a diff's added lines.
+
+    Split out from the git call so `--self-test` can exercise it on a known
+    diff: the one defect found here was a block-boundary error, which no
+    cohort-level number would have exposed.
+    """
     code = comment = 0
     blocks, run, markers = [], 0, []
     for line in diff.splitlines():
@@ -135,8 +145,42 @@ def summarize(label, rows):
           f"lines/block={med('per_block'):.1f}  blocks/commit={med('blocks'):.0f}")
 
 
+SELF_TEST = [
+    # (name, diff, expected (code, comment, blocks))
+    ("comments in separate hunks stay separate blocks",
+     "+++ b/a.swift\n@@ -1,0 +2,2 @@\n+// one\n+// two\n@@ -30,0 +34,2 @@\n+// three\n+// four\n",
+     (0, 4, [2, 2])),
+    ("code inside a hunk splits the block",
+     "+++ b/a.swift\n@@ -1,0 +2,3 @@\n+// one\n+let x = 1\n+// two\n",
+     (1, 2, [1, 1])),
+    ("a file switch closes the open block",
+     "+++ b/a.swift\n@@ -1,0 +2,1 @@\n+// one\n+++ b/b.swift\n@@ -1,0 +2,1 @@\n+// two\n",
+     (0, 2, [1, 1])),
+    ("test files are excluded",
+     "+++ b/Tests/aTests.swift\n@@ -1,0 +2,1 @@\n+// ignored\n",
+     (0, 0, [])),
+    ("an unknown extension contributes nothing",
+     "+++ b/README.md\n@@ -1,0 +2,1 @@\n+// not a known comment syntax here\n",
+     (0, 0, [])),
+]
+
+
+def self_test():
+    failed = 0
+    for name, diff, expected in SELF_TEST:
+        got = parse_added(diff, include_tests=False)
+        got = (got[0], got[1], got[2])
+        if got != expected:
+            print(f"FAIL {name}\n  expected {expected}\n  got      {got}")
+            failed += 1
+    print(f"{'FAIL' if failed else 'PASS'} ({len(SELF_TEST) - failed}/{len(SELF_TEST)})")
+    return 1 if failed else 0
+
+
 def main():
     p = argparse.ArgumentParser(add_help=True)
+    if "--self-test" in sys.argv:
+        return self_test()
     p.add_argument("range", help="git revision range, e.g. HEAD~200..HEAD")
     p.add_argument("--repo", default=".")
     p.add_argument("--by-model", action="store_true",
