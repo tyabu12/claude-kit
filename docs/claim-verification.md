@@ -29,7 +29,7 @@ Authored at implementation *or review-fix* time, and executed by nobody. Four sh
 expressible as a `Verify by` lookup:
 
 - **Why-comment on a mechanism** → delete the mechanism and run the tests. Green means the claim
-  is false, or the tests never covered it.
+  is false, or the tests never covered it. Its *destination* is a separate question (§ below).
 - **A detector / guard / gate** → construct the thing it claims to catch and confirm it fires. A
   guard's success case proves nothing; only a negative control does. Scope it to the claim it
   defends: a check narrower than that claim (a files-only loop behind a files-and-directories
@@ -47,6 +47,73 @@ expressible as a `Verify by` lookup:
   the items. Re-derive from what changed, then check the remedy actually reaches it. Two sets
   written in sequence also read as a **partition** — state the overlap, or the reader does the
   arithmetic wrong, in the direction that understates residue.
+
+## A comment written for the reviewer
+
+Backs `rules/knowledge-layering.md` § "Anti-pattern: a comment written for the reviewer". A comment
+whose only content is what *this* change did addresses the reviewer, not the next editor.
+
+**The form that survived a negative control**: flag a block only when *every* sentence in it is a
+backward-looking report, or when it restates a figure with a canonical site elsewhere. Over 169
+comment blocks from two model generations, that caught every true instance with no false positives.
+
+**Do not key it on wording instead.** Tense is the tempting discriminator — "must stay identical to
+X" constrains, "was left identical to X" reports — and on that corpus it had to decide 17 blocks and
+got 4 wrong. It reads the grammatical head, not the payload:
+
+- "…lives in `LeafIcon.swift`, which owns the default this file used to apply" (stale move record)
+  and "…live in `Foo+Bar.swift` to keep this file under the length budget" (live breadcrumb) have
+  identical grammar.
+- Duplication is invisible to it — a figure copy-pasted to a second package is the defect, and every
+  word of it is a legitimate present-tense fact.
+- It strips backward-looking clauses a forward rule depends on ("any key added *after that* bumps
+  the version").
+
+Per-clause flagging misfires on ~7% of load-bearing blocks, worst on the longest.
+
+**Word the trigger as an absence, and state precedence.** Running the drafted review-agent bullet
+over six real blocks caught two further defects. "Flag when *every* sentence merely reports" cannot
+be audited — the agent cannot point at what convinced it — whereas "flag when *no* sentence states a
+durable claim" makes the saving sentence citable; the first form also degenerates silently on a
+one-sentence block, where clause and block coincide. And a rule carrying both a trigger and a "never
+cut a load-bearing clause" safeguard must say which wins, or a block that fires the trigger while
+holding a live pointer yields either a deleted pointer or an unactionable finding.
+
+The duplicated-figure shape needs a **repo-side grep**, not a review agent — a review split by file
+or axis gives no shard sight of all the sites. Frame it as *new code must not add hits*, existing
+count as an acknowledged baseline (the *reframe* disposition).
+
+**Length is the commoner defect.** In that corpus one generation wrote ~45% more comment lines per
+block and ~47% more blocks per commit at an unchanged A/B/C/D distribution — same content, longer.
+Compressing it loses nothing, and is safer than any rule that deletes a category of content.
+
+**The rewrite-once instruction the rule carries is a hypothesis, not a settled mechanism.** A
+structural instruction is the only thing observed to shorten a draft (25%, against 14% for "compress
+this"), but it worked as a *live* instruction, while the always-loaded rule sat in the same context
+and did not fire — three verbose drafts were written under it. So ship it and re-measure with
+`scripts/comment-density.py`: blocks per commit should fall toward the concise cohort's 16, on that
+tool's counting rule. The other half of the measure — an unchanged A/B/C/D distribution — the tool
+cannot see, so it still needs a hand pass. If neither moves, the mechanism belongs at review time
+and the always-loaded lines come back out.
+
+**Three gate designs were built and refuted.** Calibrating each against the concise generation
+killed it. Per-commit on either threshold: catching 80-96% of the verbose cohort also flagged 52-79%
+of the concise one. Per-commit on both: false flags drop to 12-22% but detection collapses to
+32-48%. Per-block — the unit the rule's own trigger uses — **the cohorts share a median block of 3.0
+lines**, and a ≥12-line trigger fires on 7.8% of concise blocks against 11.4% of verbose ones (at
+≥10 lines, the rule's authoring trigger, 10.5% against 15.0% — a top tenth in both cohorts). A
+gate at any of those rates teaches its reader to ignore it, so the tool ships as cohort measurement
+only.
+
+What separates the cohorts is **count, not length**: 16 → 26 blocks per commit (+63%) against 4.3 →
+5.9 lines per block (+37%), over a shared median. The verbose generation writes more comments rather
+than much longer ones, so a length-keyed mechanism aims at the smaller half of its own defect —
+hence the rule leading with the count. Fable 5 sits below both cohorts (3.4 lines per block, 32.1%
+comment share): the axis is the model, not recency.
+
+Corpus, stratification (the commits' `Co-Authored-By` trailer), and the A/B/C/D and +45%/+47%
+figures: #35. The calibration above is this session's and is *not* in that issue; it runs on the
+tool's own counting rule, moves if `commit_stats` changes, and is re-runnable via `--dump`.
 
 ## Reading a probe's outcome
 
