@@ -76,8 +76,7 @@ what this change did — provenance, the diff's own argument, a figure a canonic
 states — belongs in the PR body or an ADR. Act on the **whole block**, never a clause: a
 backward-looking sentence is routinely what makes the forward rule intelligible. And expect
 **length**, not misfiling, to be the defect you actually find — current models state the same
-content markedly longer. Measured false-flag rate of the per-clause form, and why a duplicated
-figure needs a repo-side grep rather than a review agent:
+content markedly longer. False-flag rates and the duplicated-figure grep:
 `~/.claude/kit-docs/claim-verification.md` § "A comment written for the reviewer".
 
 ## Verify before you lock it

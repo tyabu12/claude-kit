@@ -53,35 +53,31 @@ expressible as a `Verify by` lookup:
 Backs `rules/knowledge-layering.md` § "Anti-pattern: a comment written for the reviewer". A comment
 whose only content is what *this* change did addresses the reviewer, not the next editor.
 
-**Do not key the rule on wording.** The tempting discriminator is tense — "must stay identical to X"
-constrains, "was left identical to X" reports. Measured over 169 comment blocks from two model
-generations, it had to decide 17 and got 4 wrong, because:
+**The form that survived a negative control**: flag a block only when *every* sentence in it is a
+backward-looking report, or when it restates a figure with a canonical site elsewhere. Over 169
+comment blocks from two model generations, that caught every true instance with no false positives.
 
-- It reads the sentence's grammatical head, not its payload. "…lives in `LeafIcon.swift`, which owns
-  the default this file used to apply" is a stale move record; "…live in `Foo+Bar.swift` to keep
-  this file under the length budget" is a live navigational breadcrumb — identical grammar.
-- It cannot see duplication: a measured figure copy-pasted to a second package is the defect, and
-  every word of it is a legitimate present-tense fact.
-- Backward-looking clauses are frequently load-bearing — a forward rule reading "any key added
-  *after that* bumps the version" is unparseable once the history clause is gone.
+**Do not key it on wording instead.** Tense is the tempting discriminator — "must stay identical to
+X" constrains, "was left identical to X" reports — and on that corpus it had to decide 17 blocks and
+got 4 wrong. It reads the grammatical head, not the payload:
 
-The unit of deletion is the **block**, so a per-clause flag misfires — on ~7% of load-bearing blocks
-in that corpus, and systematically on the longest, whose loss causes exactly the mistakes the
-convention prevents.
+- "…lives in `LeafIcon.swift`, which owns the default this file used to apply" (stale move record)
+  and "…live in `Foo+Bar.swift` to keep this file under the length budget" (live breadcrumb) have
+  identical grammar.
+- Duplication is invisible to it — a figure copy-pasted to a second package is the defect, and every
+  word of it is a legitimate present-tense fact.
+- It strips backward-looking clauses a forward rule depends on ("any key added *after that* bumps
+  the version").
 
-**The form that survived the negative control**: flag only when *every* sentence in the block is a
-backward-looking report, or when the block restates a figure with a canonical site elsewhere — every
-true instance caught, no false positives.
+Per-clause flagging misfires on ~7% of load-bearing blocks, worst on the longest.
 
-The duplicated-figure shape needs a **repo-side grep**, not a review agent: a review that splits a
-large diff by file or axis gives no shard sight of all the sites, so the property is invisible by
-construction. Frame it as *new code must not add hits*, existing count recorded as an acknowledged
-baseline — the *reframe* disposition, not a must-return-zero.
+The duplicated-figure shape needs a **repo-side grep**, not a review agent — a review split by file
+or axis gives no shard sight of all the sites. Frame it as *new code must not add hits*, existing
+count as an acknowledged baseline (the *reframe* disposition).
 
 **Length is the commoner defect.** In that corpus one generation wrote ~45% more comment lines per
-block and ~50% more blocks per commit at an unchanged A/B/C/D distribution — same content, longer,
-so compressible with no information loss. A cheaper and safer correction than deleting a category of
-content.
+block and ~50% more blocks per commit at an unchanged A/B/C/D distribution — same content, longer.
+Compressing it loses nothing, and is safer than any rule that deletes a category of content.
 
 ## Reading a probe's outcome
 
