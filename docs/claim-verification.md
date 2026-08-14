@@ -106,19 +106,21 @@ lines**, and a ≥12-line trigger fires on 7.8% of concise blocks against 11.4% 
 gate at any of those rates teaches its reader to ignore it, so the tool ships as cohort measurement
 only.
 
-**Count and length rise together, and an unnormalized count said otherwise.** Per 100 added code
-lines the verbose cohort writes 16.0 → 21.0 blocks (+31%) at 4.31 → 5.68 lines each (+32%), over a
-median block of 3.0 in both. Neither dominates; the excess is spread, so a mechanism keyed to either
-one alone reaches about half of it.
+**Lead with the two measures that carry their own denominator.** Comment share of added lines runs
+43.0% → 55.0%, and lines per block 4.31 → 5.68 (+32%) over a median of 3.0 in both — each a ratio by
+construction. Block *count* is not: the same two cohorts differ by +31% per 100 added code lines,
++10% per file touched, and +63% per commit. Both dimensions rise, neither dominates, and a mechanism
+keyed to one alone reaches about half the excess.
 
-The claim this replaces — "count, not length", from 16 → 26 blocks *per commit* — was an artifact of
-**comparing a raw per-unit count across cohorts whose unit is not the same size**. The verbose
-cohort's commits add 108 → 179 code lines, so blocks per commit banked that difference as a comment
-habit. The tell was available without any of this: on the raw count Fable 5 writes *more* blocks per
-commit than either cohort (24 against 16), and normalized it writes the fewest (14.1) — a metric
-that ranks the most concise model as the most verbose is measuring commit size. It is the third
-correction to this diagnosis and the third instance of one shape: a comparison whose denominator was
-never checked (first the topic, then merged blocks across hunks, now commit size).
+The claim this replaces — "count, not length", read off that +63% — was **a raw per-unit count
+compared across cohorts whose unit is not the same size**. The verbose cohort's commits add 108 →
+179 code lines, so blocks per commit banked that as a comment habit. The tell needed none of the
+above: Fable 5 is the most concise cohort on every self-normalizing measure and the *least* concise
+on both raw ones (24 blocks per commit against 16, 3.57 per file against 3.08 — it writes 39.8 lines
+per file against 22.4). A metric that ranks the most concise model as the most verbose is measuring
+its denominator. This is the third correction to this diagnosis, and the third of one shape — a
+comparison whose denominator went unchecked: first the topic, then blocks merged across hunks, now
+commit size.
 
 Fable 5 is below both cohorts on every normalized measure (14.1 blocks per 100 lines, 3.35 lines per
 block, 32.1% comment share, median block 2.0): the axis is the model, not recency.
