@@ -73,11 +73,14 @@ git ls-files -z --cached --others --exclude-standard \
 
 Same misfiling, one tier down. A comment is read by the **next editor**, so a block saying *only*
 what this change did — provenance, the diff's own argument, a figure a canonical site already
-states — belongs in the PR body or an ADR. Act on the **whole block**, never a clause: a
-backward-looking sentence is routinely what makes the forward rule intelligible. And expect
-**length**, not misfiling, to be the defect you actually find — current models state the same
-content markedly longer. False-flag rates and the duplicated-figure grep:
-`~/.claude/kit-docs/claim-verification.md` § "A comment written for the reviewer".
+states — belongs in the PR body or an ADR. **When flagging that**, move the whole block, never a
+clause: a backward-looking sentence is routinely what makes the forward rule intelligible. But
+expect **length**, not misfiling, to be the defect you actually find — current models state the
+same content markedly longer, and the remedy there is rewriting the block shorter, which is a
+different act from deleting one. So when *writing* one: a block past ~6 lines (the concise
+generation sat at 5.5) gets one rewrite at half the length, and **the rewrite wins** unless it
+dropped a forward-looking fact. False-flag rates, why the duplicated-figure shape needs a
+repo-side grep: `~/.claude/kit-docs/claim-verification.md` § "A comment written for the reviewer".
 
 ## Verify before you lock it
 

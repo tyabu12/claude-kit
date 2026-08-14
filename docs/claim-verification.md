@@ -84,8 +84,18 @@ or axis gives no shard sight of all the sites. Frame it as *new code must not ad
 count as an acknowledged baseline (the *reframe* disposition).
 
 **Length is the commoner defect.** In that corpus one generation wrote ~45% more comment lines per
-block and ~50% more blocks per commit at an unchanged A/B/C/D distribution — same content, longer.
+block and ~47% more blocks per commit at an unchanged A/B/C/D distribution — same content, longer.
 Compressing it loses nothing, and is safer than any rule that deletes a category of content.
+
+**The rewrite-once instruction the rule carries is a hypothesis, not a settled mechanism.** A
+structural instruction is the only thing observed to shorten a draft (25%, against 14% for "compress
+this"), but it worked as a *live* instruction, while the always-loaded rule sat in the same context
+and did not fire — three verbose drafts were written under it. So ship it and re-measure: comment
+lines per block should fall toward 5.5 at an unchanged A/B/C/D distribution. If it does not move,
+the mechanism belongs at review or commit time and the always-loaded lines should come back out.
+
+Corpus, generation stratification (the commits' `Co-Authored-By` trailer) and every figure above:
+#35.
 
 ## Reading a probe's outcome
 
