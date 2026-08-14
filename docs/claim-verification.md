@@ -71,6 +71,14 @@ got 4 wrong. It reads the grammatical head, not the payload:
 
 Per-clause flagging misfires on ~7% of load-bearing blocks, worst on the longest.
 
+**Word the trigger as an absence, and state precedence.** Running the drafted review-agent bullet
+over six real blocks caught two further defects. "Flag when *every* sentence merely reports" cannot
+be audited — the agent cannot point at what convinced it — whereas "flag when *no* sentence states a
+durable claim" makes the saving sentence citable; the first form also degenerates silently on a
+one-sentence block, where clause and block coincide. And a rule carrying both a trigger and a "never
+cut a load-bearing clause" safeguard must say which wins, or a block that fires the trigger while
+holding a live pointer yields either a deleted pointer or an unactionable finding.
+
 The duplicated-figure shape needs a **repo-side grep**, not a review agent — a review split by file
 or axis gives no shard sight of all the sites. Frame it as *new code must not add hits*, existing
 count as an acknowledged baseline (the *reframe* disposition).
