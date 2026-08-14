@@ -71,16 +71,18 @@ git ls-files -z --cached --others --exclude-standard \
 
 ## Anti-pattern: a comment written for the reviewer
 
-Same misfiling, one tier down. A comment is read by the **next editor**, so a block saying *only*
-what this change did — provenance, the diff's own argument, a figure a canonical site already
-states — belongs in the PR body or an ADR. **When flagging that**, move the whole block, never a
-clause: a backward-looking sentence is routinely what makes the forward rule intelligible. But
-expect **length**, not misfiling, to be the defect you actually find — current models state the
-same content markedly longer, and the remedy there is rewriting the block shorter, which is a
-different act from deleting one. So when *writing* one: a block past ~6 lines (the concise
-generation sat at 5.5) gets one rewrite at half the length, and **the rewrite wins** unless it
-dropped a forward-looking fact. False-flag rates, why the duplicated-figure shape needs a
-repo-side grep: `~/.claude/kit-docs/claim-verification.md` § "A comment written for the reviewer".
+Same misfiling, one tier down. A comment is read by the **next editor**, so a block where *no*
+sentence states a durable claim — only provenance, the diff's own argument, a figure a canonical
+site already states — belongs in the PR body or an ADR. **When flagging that**, move the whole
+block, never a clause: a backward-looking sentence is routinely what makes the forward rule
+intelligible. But expect **volume**, not misfiling, to be the defect you actually find; it tracks
+the model, not recency, and its remedy is rewriting shorter — a different act from deleting. When
+*writing*, watch the count before the length: the measured excess is ~60% more blocks against ~35%
+longer ones, so the block not worth writing is commoner than the block worth shortening. Past ~10
+lines (the top tenth even for the concise baseline) rewrite once at half length, and **the rewrite
+wins** unless it dropped a forward-looking fact. False-flag rates, the calibration that refuted a
+commit-level gate, why the duplicated-figure shape needs a repo-side grep:
+`~/.claude/kit-docs/claim-verification.md` § "A comment written for the reviewer".
 
 ## Verify before you lock it
 

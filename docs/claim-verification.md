@@ -90,12 +90,30 @@ Compressing it loses nothing, and is safer than any rule that deletes a category
 **The rewrite-once instruction the rule carries is a hypothesis, not a settled mechanism.** A
 structural instruction is the only thing observed to shorten a draft (25%, against 14% for "compress
 this"), but it worked as a *live* instruction, while the always-loaded rule sat in the same context
-and did not fire — three verbose drafts were written under it. So ship it and re-measure: comment
-lines per block should fall toward 5.5 at an unchanged A/B/C/D distribution. If it does not move,
-the mechanism belongs at review or commit time and the always-loaded lines should come back out.
+and did not fire — three verbose drafts were written under it. So ship it and re-measure with
+`scripts/comment-density.py`: blocks per commit should fall toward the concise cohort's 16, on that
+tool's counting rule. The other half of the measure — an unchanged A/B/C/D distribution — the tool
+cannot see, so it still needs a hand pass. If neither moves, the mechanism belongs at review time
+and the always-loaded lines come back out.
 
-Corpus, generation stratification (the commits' `Co-Authored-By` trailer) and every figure above:
-#35.
+**Three gate designs were built and refuted.** Calibrating each against the concise generation
+killed it. Per-commit on either threshold: catching 80-96% of the verbose cohort also flagged 52-79%
+of the concise one. Per-commit on both: false flags drop to 12-22% but detection collapses to
+32-48%. Per-block — the unit the rule's own trigger uses — **the cohorts share a median block of 3.0
+lines**, and a ≥12-line trigger fires on 7.8% of concise blocks against 11.4% of verbose ones (at
+≥10 lines, the rule's authoring trigger, 10.5% against 15.0% — a top tenth in both cohorts). A
+gate at any of those rates teaches its reader to ignore it, so the tool ships as cohort measurement
+only.
+
+What separates the cohorts is **count, not length**: 16 → 26 blocks per commit (+63%) against 4.3 →
+5.9 lines per block (+37%), over a shared median. The verbose generation writes more comments rather
+than much longer ones, so a length-keyed mechanism aims at the smaller half of its own defect —
+hence the rule leading with the count. Fable 5 sits below both cohorts (3.4 lines per block, 32.1%
+comment share): the axis is the model, not recency.
+
+Corpus, stratification (the commits' `Co-Authored-By` trailer), and the A/B/C/D and +45%/+47%
+figures: #35. The calibration above is this session's and is *not* in that issue; it runs on the
+tool's own counting rule, moves if `commit_stats` changes, and is re-runnable via `--dump`.
 
 ## Reading a probe's outcome
 
