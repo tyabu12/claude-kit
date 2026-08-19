@@ -166,7 +166,7 @@ rules with `./install.sh` (or copy `rules/*.md` into your own
 
 ## Suppressing these rules in a project that keeps its own copy
 
-`rules/*.md` are always-loaded — **10,868 B** (`cat rules/*.md | wc -c`, 2026-08-13) paid on every
+`rules/*.md` are always-loaded — **20,620 B** (`cat rules/*.md | wc -c`, 2026-08-19) paid on every
 turn of every session on the machine. A consuming project that has already copied them into its own
 `.claude/rules/` pays for both copies. `claudeMdExcludes` drops the kit's, leaving the project's
 alone:
@@ -177,7 +177,10 @@ alone:
   "claudeMdExcludes": [
     "/abs/path/to/claude-kit/rules/knowledge-layering.md",
     "/abs/path/to/claude-kit/rules/subagent-usage.md",
-    "/abs/path/to/claude-kit/rules/context-budget.md"
+    "/abs/path/to/claude-kit/rules/context-budget.md",
+    "/abs/path/to/claude-kit/rules/delegation.md",
+    "/abs/path/to/claude-kit/rules/session-hygiene.md",
+    "/abs/path/to/claude-kit/rules/skill-feedback.md"
   ]
 }
 ```
@@ -208,8 +211,8 @@ What the procedure depends on:
   `settings.local.json` is gitignored. The kit can carry the procedure and nothing else.
 
 Verify it took effect with an `InstructionsLoaded` hook (matcher `session_start`) logging `file_path`
-— a control arm with no `claudeMdExcludes` must show the three kit paths, and a bogus-path arm must
-leave all three loaded, or the instrument is proving nothing (`docs/claim-verification.md`; the same
+— a control arm with no `claudeMdExcludes` must show the kit paths, and a bogus-path arm must
+leave them all loaded, or the instrument is proving nothing (`docs/claim-verification.md`; the same
 hook, wired up, plus the per-form table, is in `docs/code-review-path-scoped-rules.md`). Re-verify on
 a Claude Code upgrade; last measured **2026-08-13 on 2.1.228 and 2.1.229**.
 
