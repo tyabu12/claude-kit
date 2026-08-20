@@ -1,6 +1,6 @@
 ---
 name: dispatch
-description: "Fan out multiple independent tasks in the current repo to worktree-isolated implementer subagents running in parallel. Each task: implement → auto-detected verification (just/make/gradle/swift/npm/composer/cargo/pytest/dotnet) → commit → push → draft PR (assigned + labeled) → critic review of the diff. One approval gate on the dispatch plan; issue-backed tasks get self-assigned and labeled in-progress. Use when the user has a batch of small-to-medium independent, well-specified tasks (backlog items, issue numbers, cleanup lists) to run in parallel. For a single large feature that needs planning and design judgment, use the project's own /orchestrate instead (scaffold one with /orchestrate-creator if the repo has none)."
+description: "Fan out a batch of independent, well-specified tasks (backlog items, issue numbers) to parallel worktree-isolated implementer subagents, each ending at a draft PR plus a critic review. For a single large feature, use the project's own /orchestrate instead (/orchestrate-creator scaffolds one)."
 argument-hint: "[bullet-list of tasks | path/to/tasks.md | #123 #124 ...]"
 disable-model-invocation: true
 ---

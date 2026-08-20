@@ -1,6 +1,6 @@
 ---
 name: skill-retro
-description: "Monthly evidence-driven retrospective of this kit's skills. Gathers evidence — friction logs from ~/.claude/skill-feedback/, skill-invocation traces from session transcripts, outcome data from dispatch-created PRs, and official-docs drift — then proposes SKILL.md fixes ONLY where evidence exists, delivered as a draft PR to the claude-kit repo. No evidence → no change. Reviews itself too (dogfooding). Designed to run monthly, manually or as a scheduled routine, via /skill-retro."
+description: "Monthly evidence-driven retrospective of this kit's skills: gather friction logs, invocation traces, PR outcomes and docs drift, then propose SKILL.md fixes as a draft PR — only where evidence exists. No evidence → no change."
 argument-hint: "(none — runs one monthly retro pass)"
 disable-model-invocation: true
 ---

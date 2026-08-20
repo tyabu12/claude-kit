@@ -1,8 +1,9 @@
 ---
 name: orchestrate-creator
-description: Scaffold a project-owned /orchestrate skill into the current repo's .claude/skills/ from this kit's template — resolve the project's parameters (test/lint commands, commit gate, TDD policy, review agents, plan marker) at generation time and bake them in. Re-run on a previously generated skill to diff it against the current template and propose back-ports. Use when a project needs an orchestration workflow (plan → issue → worktree → implement → review → PR), or to upgrade one generated earlier.
+description: "Scaffold or upgrade a project-owned /orchestrate skill (plan → issue → worktree → implement → review → PR) in the current repo's .claude/skills/. Use when a project needs an orchestration workflow, or to upgrade one generated earlier."
 allowed-tools: Read, Grep, Glob, Bash, Write, Edit, AskUserQuestion
 argument-hint: "[upgrade]"
+disable-model-invocation: true
 ---
 
 # /orchestrate-creator

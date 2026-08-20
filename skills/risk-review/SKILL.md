@@ -1,6 +1,6 @@
 ---
 name: risk-review
-description: "Multi-perspective, bias-resistant risk review of a working-tree diff or a plan/design decision. Generates risk axes via pre-mortem analysis (committing to 'what could go wrong' before assessing), then fans out one `critic` subagent per axis cluster in parallel — choosing the model per cluster by difficulty — and synthesizes the findings. Read-only by instruction (not mechanically enforced). Use this for change-impact and design risk."
+description: "Multi-perspective, bias-resistant risk review of a working-tree diff or a plan/design decision: pre-mortem risk axes fanned out to parallel `critic` subagents, then synthesized. Read-only by instruction. Use for change-impact and design risk."
 allowed-tools: Read, Grep, Glob, Bash, Agent
 argument-hint: "[plan | path | description] (empty = diff)"
 ---

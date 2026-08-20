@@ -3,6 +3,7 @@ name: work-log
 description: Extract and format a work log from conversation history under ~/.claude/projects/. Argument is the number of days to look back (default 7).
 argument-hint: "[days]"
 model: sonnet
+disable-model-invocation: true
 ---
 
 Extract and format a work log from the conversation history under `~/.claude/projects/`.
