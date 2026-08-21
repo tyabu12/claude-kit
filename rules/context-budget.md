@@ -19,7 +19,7 @@ Always-loaded files — read into every agent session, so every line is paid on 
 - `skills/*/SKILL.md` (personal or project) — likewise `description:` only, and `disable-model-invocation: true` drops
   even that from the model's listing (giving up auto-invocation)
 
-Path-scoped files (`paths:` frontmatter) load only when a matching path is read — the budget is looser there.
+Path-scoped files (`paths:` frontmatter) load on a matching read — **budget them the same**. A glob over the layers you work in is paid most sessions, and widening one is growth.
 
 ## Principle
 
