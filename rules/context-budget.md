@@ -16,7 +16,7 @@ Always-loaded files — read into every agent session, so every line is paid on 
 - a project's top-level `CLAUDE.md` and its `.claude/rules/*.md` without `paths:`
 - `agents/*.md` (personal or project) — the `description:` only; the body is paid per spawn, not
   per turn
-- `skills/*/SKILL.md` — likewise `description:` only, and `disable-model-invocation: true` drops
+- `skills/*/SKILL.md` (personal or project) — likewise `description:` only, and `disable-model-invocation: true` drops
   even that from the model's listing (giving up auto-invocation)
 
 Path-scoped files (`paths:` frontmatter) load only when a matching path is read — the budget is looser there.
