@@ -1,6 +1,6 @@
 ---
 name: code-reviewer
-description: "Project-agnostic code reviewer for a feature branch or working diff. Reviews for correctness, security, test coverage, and adherence to the project's OWN conventions (CLAUDE.md + matching .claude/rules/**). Read-only; never modifies, builds, or commits. Emits a PASS/FAIL verdict so an orchestrator gate can parse it. The orchestrator chooses the model per invocation; sensitivity-heavy reviews benefit from a high-capability model."
+description: "Reviews a feature branch or working diff for correctness, security, test coverage, and the project's own conventions (CLAUDE.md + path-scoped .claude/rules/**). Read-only; emits a PASS/FAIL verdict for a gate."
 tools: Read, Grep, Glob, Bash
 maxTurns: 30
 # model: intentionally omitted — the caller (e.g. a generated orchestrate skill's Step 4) selects the

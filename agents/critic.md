@@ -1,6 +1,6 @@
 ---
 name: critic
-description: "Bias-resistant reviewer using pre-mortem axis generation and rubric-based evaluation. Reviews a diff, plan, ADR, architecture decision, or design trade-off through risk axes — either axes assigned in the prompt (assigned-axis mode) or axes it generates itself (standalone). Read-only; never modifies, builds, or commits. The orchestrator chooses the model per invocation; judgment-heavy reviews benefit from a high-capability model."
+description: "Bias-resistant reviewer of a diff, plan, ADR, or design decision, working through pre-mortem risk axes — either assigned in the prompt or generated standalone. Read-only."
 tools: Read, Grep, Glob, Bash
 maxTurns: 30
 # model: intentionally omitted — the caller (e.g. the /risk-review skill) selects the model per

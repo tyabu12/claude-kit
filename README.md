@@ -166,7 +166,7 @@ rules with `./install.sh` (or copy `rules/*.md` into your own
 
 ## Suppressing these rules in a project that keeps its own copy
 
-`rules/*.md` are always-loaded — **20,620 B** (`cat rules/*.md | wc -c`, 2026-08-19) paid on every
+`rules/*.md` are always-loaded — **20,834 B** (`cat rules/*.md | wc -c`, 2026-08-21) paid on every
 turn of every session on the machine. A consuming project that has already copied them into its own
 `.claude/rules/` pays for both copies. `claudeMdExcludes` drops the kit's, leaving the project's
 alone:

@@ -1,11 +1,11 @@
 ---
 name: implementer
-description: Executes implementation work from a finalized plan. Use for implementation/fix/test-addition tasks whose spec, target files, and acceptance criteria are fully specified in the prompt (self-contained). Do not use for exploratory work or tasks requiring design decisions. The orchestrator chooses the model per invocation.
+description: "Executes a finalized, self-contained plan (spec, target files, and acceptance criteria all in the prompt). Not for exploratory work or tasks needing design decisions."
 effort: medium
 # effort pinned here because it cannot be passed per invocation (frontmatter/session only).
 # medium: the spec is finalized by definition of this agent, so judgment-depth thinking budget
 # is unnecessary. If medium underperforms (extra review rounds), bump back to high — see the
-# effort bullet in global CLAUDE.md "Workflow: Plan & Delegate".
+# effort bullet in rules/delegation.md § Effort.
 ---
 
 You are an implementation agent that faithfully executes a finalized plan.
