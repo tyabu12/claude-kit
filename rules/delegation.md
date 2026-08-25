@@ -54,16 +54,20 @@ included); one consult per decision — take the verdict and move on. It complem
 ## Effort
 
 Reasoning **effort** is the second dial, subordinate to model choice — it scales token volume within
-a model, not the per-token price. Keep the default `high` everywhere, main session included; do not
-micro-manage `/effort` mid-session. Two standing deviations:
+a model, not the per-token price. The default is `medium` everywhere, main session included —
+**a trial since 2026-08-25**: published data shows Opus 5 handles coding tasks at medium; Fable is
+unmeasured and assumed to match. If fix-round counts or review quality degrade under medium, revert
+to `high` and note it here (the re-measure window on pastura #1519 covers this change). Do not
+micro-manage `/effort` mid-session. Two standing notes:
 
 1. `implementer` pins `effort: medium` in its frontmatter — finalized-spec execution needs no
    judgment-depth thinking, and effort cannot be passed per `Agent` invocation (frontmatter or
-   session level only). If medium underperforms (extra review rounds), bump it back to `high` and
-   note it here.
-2. `xhigh` is a deliberate single-shot escalation on the hardest judgment calls — same model, one
-   rung before a Fable consult. **Never raise review subagents (`code-reviewer` / `critic`) to
-   `xhigh`**: higher effort inflates output tokens against the caps in `subagent-usage.md`.
+   session level only). The pin now matches the session default; keep it anyway — it holds
+   implementation at medium even when a session escalates.
+2. `high` and `xhigh` are deliberate single-shot escalations on hard judgment calls — same model,
+   rungs before a Fable consult (ladder: medium → high → xhigh → Fable). **Never raise review
+   subagents (`code-reviewer` / `critic`) to `xhigh`**: higher effort inflates output tokens
+   against the caps in `subagent-usage.md`.
 
 ## Escalation & de-escalation
 
